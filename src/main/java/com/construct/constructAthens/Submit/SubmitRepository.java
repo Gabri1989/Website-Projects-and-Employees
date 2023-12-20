@@ -1,4 +1,4 @@
-package com.construct.constructAthens;
+package com.construct.constructAthens.Submit;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

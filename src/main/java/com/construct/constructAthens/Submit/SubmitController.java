@@ -1,8 +1,7 @@
-package com.construct.constructAthens;
+package com.construct.constructAthens.Submit;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

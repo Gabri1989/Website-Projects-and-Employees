@@ -46,5 +46,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<distributionManagement>
+		<repository>
+			<id>azure-web-app</id>
+			<url>https://back-robert.azurewebsites.net</url>
+		</repository>
+	</distributionManagement>
 
 </project>
