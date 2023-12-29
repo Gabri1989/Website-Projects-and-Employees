@@ -1,5 +1,6 @@
 package com.construct.constructAthens.Submit;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +28,12 @@ public class SubmitController {
         return submits.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    @PostMapping
-    public ResponseEntity<Submit> addSubmit(@RequestBody Submit submit) {
+    @PostMapping("/create")
+    public ResponseEntity<Submit> addSubmit(@Valid @RequestBody Submit submit) {
         Submit savedSubmit = submitService.saveSubmit(submit);
         return new ResponseEntity<>(savedSubmit, HttpStatus.CREATED);
     }
-    @PutMapping("/{id}")
+    @PutMapping("/edit/{id}")
     public ResponseEntity<Submit> updateSubmit(@PathVariable Long id, @RequestBody Submit updatedSubmit) {
         Optional<Submit> existingSubmit = submitService.getSubmitById(id);
         if (existingSubmit.isPresent()) {
@@ -43,7 +44,7 @@ public class SubmitController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteSubmit(@PathVariable Long id) {
         Optional<Submit> submit = submitService.getSubmitById(id);
         if (submit.isPresent()) {
