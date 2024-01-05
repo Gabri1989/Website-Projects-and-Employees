@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.Email;
 
 @Table(name = "submits")
 @Entity
@@ -11,12 +12,14 @@ public class Submit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+    @NotEmpty
     @Size(min=3,max=30)
     private String name;
     private String phone;
+    @Email
     private String email;
     private String company;
+    @NotEmpty
     private String message;
     public void setId(Long id) {
         this.id = id;}

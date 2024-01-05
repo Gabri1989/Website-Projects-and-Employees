@@ -4,7 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Tag(name = "Employee", description = "Operations related to employees")
 @Table(name = "employees")
@@ -13,14 +16,15 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+    @NotEmpty
     @Size(min = 0, max = 20)
     private String name;
 
     private String imageURL;
-    @Schema
+    @Email
     private String email;
-
+    @NotEmpty
+    @Pattern(regexp="\\+?[0-9]+")
     private String number;
     private double latitude = 0.0;
     private double longitude = 0.0;
