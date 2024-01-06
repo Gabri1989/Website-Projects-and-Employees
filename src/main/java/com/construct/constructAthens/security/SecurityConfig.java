@@ -38,10 +38,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatchers((matchers) -> matchers
-                        .requestMatchers("/api/**")
+                        .requestMatchers("/api/auth/generateToken")
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
+                        .anyRequest().hasAnyAuthority("ROLE_EMPLOYEE","ROLE_ADMIN")
                 )
 
                 .httpBasic(Customizer.withDefaults());
