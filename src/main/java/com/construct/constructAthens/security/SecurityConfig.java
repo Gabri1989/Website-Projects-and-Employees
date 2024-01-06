@@ -40,8 +40,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((authorize) -> authorize
 
-                        .anyRequest().hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_ADMIN")
+                        .anyRequest().hasAnyAuthority("ROLE_EMPLOYEE","ROLE_ADMIN")
                 )
+
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
