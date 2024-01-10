@@ -1,5 +1,7 @@
 package com.construct.constructAthens.Employees;
 
+import com.construct.constructAthens.Employees.exception.NotFoundEx;
+import com.construct.constructAthens.Employees.exception.NotYetImplementedEx;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +61,17 @@ public class EmployeeController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @PatchMapping("/edit/{id}")
+    public ResponseEntity<Boolean> updatePartially(@PathVariable(name = "id") Long id,
+                                                   @RequestBody EmployeeDTO dto) throws NotYetImplementedEx, NotFoundEx {
+        // skipping validations for brevity
+        if (dto.getOp().equalsIgnoreCase("update")) {
+            boolean result = employeeService.partialUpdate(id, dto.getKey(), dto.getValue());
+            return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
+        } else {
+            throw new NotYetImplementedEx("NOT_YET_IMPLEMENTED");
         }
     }
 }
