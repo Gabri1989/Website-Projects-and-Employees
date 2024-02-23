@@ -6,10 +6,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
-@Tag(name = "Employee", description = "Operations related to employees")
+import java.time.LocalDate;
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Tag(name = "Employee", description = "employees")
 @Table(name = "employees")
 @Entity
 public class Employee {
@@ -25,42 +31,35 @@ public class Employee {
     @Email
     private String email;
     @NotNull
-    @Pattern(regexp="\\+?[0-9]+")
+    @Pattern(regexp = "\\+?[0-9]+")
     private String number;
+    private String adress;
+    private String CNP;
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private LocalDate employmentDate;
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private LocalDate birthday;
+
+    private String nationality;
+    private int kids;
+    private String emergencyContact;
+    private String emergencyPhone;
+    private String motherLanguage;
+    private String foreignLanguage;
+    private String skillName;
+    private String level;
+    private String experience;
+    private String curiculum;
+    private String signature;
+    private String education;
+
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
-    public String getImageURL() {
-        return imageURL;
-    }
-
-    public void setImageURL(String imageURL) {
+    public void setImageUrl(String imageURL) {
         this.imageURL = imageURL;
     }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-
-    public String getName() {
-        return name;
-    }
 }
+

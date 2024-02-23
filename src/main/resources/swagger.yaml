@@ -1,0 +1,19 @@
+paths:
+  /upload:
+    post:
+      summary: Upload a file
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          description: The file to upload
+          required: true
+          type: file
+      responses:
+        '200':
+          description: File uploaded successfully
+        '400':
+          description: Bad request, check your input
+        '500':
+          description: Internal server error
