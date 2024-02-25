@@ -39,16 +39,15 @@ public class EmployeeService {
         return employeeRepository.findById(id);
 
     }
-    public List<EmployeeSkills> getEmployeeSkills() {
-        List<Employee> employees = employeeRepository.findAll();
-        List<EmployeeSkills> employeeSkillsList = new ArrayList<>();
+    public EmployeeSkills getEmployeeSkillsById(Long employeeId) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
 
-        for (Employee employee : employees) {
-            EmployeeSkills employeeSkills = mapToEmployeeSkills(employee);
-            employeeSkillsList.add(employeeSkills);
+        if (optionalEmployee.isPresent()) {
+            Employee employee = optionalEmployee.get();
+            return mapToEmployeeSkills(employee);
+        } else {
+            return null;
         }
-
-        return employeeSkillsList;
     }
 
     private EmployeeSkills mapToEmployeeSkills(Employee employee) {

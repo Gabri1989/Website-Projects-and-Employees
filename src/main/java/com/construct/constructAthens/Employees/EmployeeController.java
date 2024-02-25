@@ -45,10 +45,15 @@ public class EmployeeController {
         List<Employee> employees = employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-    @GetMapping("/skills")
-    public ResponseEntity<List<EmployeeSkills>> getEmployeeSkills() {
-        List<EmployeeSkills> employeeSkillsList = employeeService.getEmployeeSkills();
-        return new ResponseEntity<>(employeeSkillsList, HttpStatus.OK);
+    @GetMapping("/skills/{employeeId}")
+    public ResponseEntity<EmployeeSkills> getEmployeeSkillsById(@PathVariable Long employeeId) {
+        EmployeeSkills employeeSkills = employeeService.getEmployeeSkillsById(employeeId);
+
+        if (employeeSkills != null) {
+            return new ResponseEntity<>(employeeSkills, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
