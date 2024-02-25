@@ -16,13 +16,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 
 public class EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository ;
     @Value("${spring.cloud.azure.storage.blob.connection-string}")
     private String azureStorageConnectionString;
     @Autowired
@@ -38,7 +39,25 @@ public class EmployeeService {
         return employeeRepository.findById(id);
 
     }
+    public List<EmployeeSkills> getEmployeeSkills() {
+        List<Employee> employees = employeeRepository.findAll();
+        List<EmployeeSkills> employeeSkillsList = new ArrayList<>();
 
+        for (Employee employee : employees) {
+            EmployeeSkills employeeSkills = mapToEmployeeSkills(employee);
+            employeeSkillsList.add(employeeSkills);
+        }
+
+        return employeeSkillsList;
+    }
+
+    private EmployeeSkills mapToEmployeeSkills(Employee employee) {
+        EmployeeSkills employeeSkills = new EmployeeSkills();
+        employeeSkills.setSkillName(employee.getSkillName());
+        employeeSkills.setLevel(employee.getLevel());
+        employeeSkills.setExperience(employee.getExperience());
+        return employeeSkills;
+    }
     public Employee saveEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
@@ -46,7 +65,7 @@ public class EmployeeService {
     public void deleteEmployee(Long id) {
         employeeRepository.deleteById(id);
     }
-   /* public boolean partialUpdate(Long id, String key, String value)
+    public boolean partialUpdate(Long id, String key, String value)
             throws NotFoundEx {
         log.info("Search id={}", id);
         Optional<Employee> optional = employeeRepository.findById(id);
@@ -59,7 +78,7 @@ public class EmployeeService {
             }
             if (key.equalsIgnoreCase("image")) {
                 log.info("Updating image");
-                user.setImageURL(value);
+                user.setImageUrl(value);
             }
             if (key.equalsIgnoreCase("email")) {
                 log.info("Updating email");
@@ -114,7 +133,7 @@ public class EmployeeService {
         } else {
             throw new NotFoundEx("RESOURCE_NOT_FOUND");
         }
-    }*/
+    }
 
 
 }

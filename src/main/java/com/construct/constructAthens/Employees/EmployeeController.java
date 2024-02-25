@@ -4,6 +4,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobClientBuilder;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.construct.constructAthens.AzureStorage.StorageService;
+import com.construct.constructAthens.Employees.exception.NotFoundEx;
+import com.construct.constructAthens.Employees.exception.NotYetImplementedEx;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,11 +32,12 @@ public class EmployeeController {
     @Autowired
     private final EmployeeService employeeService;
     @Autowired
-    private StorageService storageService;
+    private StorageService azureBlobAdapter;
     @Autowired
-    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService) {
+    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService, StorageService azureBlobAdapter) {
         this.objectMapper = objectMapper;
         this.employeeService = employeeService;
+        this.azureBlobAdapter=azureBlobAdapter;
     }
 
     @GetMapping
@@ -42,7 +45,11 @@ public class EmployeeController {
         List<Employee> employees = employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-
+    @GetMapping("/skills")
+    public ResponseEntity<List<EmployeeSkills>> getEmployeeSkills() {
+        List<EmployeeSkills> employeeSkillsList = employeeService.getEmployeeSkills();
+        return new ResponseEntity<>(employeeSkillsList, HttpStatus.OK);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -58,10 +65,10 @@ public class EmployeeController {
    @PostMapping("/create")
    public ResponseEntity<Employee> addEmployee(
            @RequestPart("employee") Employee employee,
-           @RequestPart("image") MultipartFile imageFile) {
+           @RequestPart("profileImage") MultipartFile file) {
 
        try {
-           String imageUrl = storageService.upload(imageFile);
+           String imageUrl = azureBlobAdapter.upload(file);
            employee.setImageUrl(imageUrl);
            Employee savedEmployee = employeeService.saveEmployee(employee);
            return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
@@ -69,6 +76,7 @@ public class EmployeeController {
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
    }
+
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee updatedEmployee) {
@@ -92,17 +100,17 @@ public class EmployeeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    /*@PatchMapping(path = "/edit/{id}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "/edit/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Boolean> updatePartially(@PathVariable(name = "id") Long id,
                                                    @RequestBody EmployeeDTO dto) throws NotYetImplementedEx, NotFoundEx {
-        // skipping validations for brevity
+
         if (dto.getOp().equalsIgnoreCase("update")) {
             boolean result = employeeService.partialUpdate(id, dto.getKey(), dto.getValue());
             return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
         } else {
             throw new NotYetImplementedEx("NOT_YET_IMPLEMENTED");
         }
-    }*/
+    }
     @PatchMapping(path = "/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody List<EmployeeDTO> employeeDTOList) {
         try {
@@ -124,7 +132,7 @@ public class EmployeeController {
             if ("replace".equals(employeeDTO.getOp())) {
                 targetNode.put(employeeDTO.getKey(), employeeDTO.getValue());
             }
-            // Add more logic for other operations like "add", "remove", etc. if needed
+
         }
 
         return objectMapper.treeToValue(targetNode, Employee.class);
