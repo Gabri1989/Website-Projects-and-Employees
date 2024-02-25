@@ -61,5 +61,12 @@ public class Employee {
     public void setImageUrl(String imageURL) {
         this.imageURL = imageURL;
     }
+
+
+
+
+    public String getImageUrl() {
+        return imageURL;
+    }
 }
 

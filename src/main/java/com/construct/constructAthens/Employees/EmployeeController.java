@@ -34,10 +34,10 @@ public class EmployeeController {
     @Autowired
     private StorageService azureBlobAdapter;
     @Autowired
-    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService, StorageService azureBlobAdapter) {
+    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService) {
         this.objectMapper = objectMapper;
         this.employeeService = employeeService;
-        this.azureBlobAdapter=azureBlobAdapter;
+
     }
 
     @GetMapping
@@ -62,12 +62,12 @@ public class EmployeeController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-   /* @PostMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee) {
         Employee savedEmployee = employeeService.saveEmployee(employee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
-    }*/
-   @PostMapping("/create")
+    }
+   /*@PostMapping("/create")
    public ResponseEntity<Employee> addEmployee(
            @RequestPart("employee") Employee employee,
            @RequestPart("profileImage") MultipartFile file) {
@@ -78,9 +78,10 @@ public class EmployeeController {
            Employee savedEmployee = employeeService.saveEmployee(employee);
            return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
        } catch (IOException e) {
+           e.printStackTrace();
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
-   }
+   }*/
 
 
     @PutMapping("/edit/{id}")
