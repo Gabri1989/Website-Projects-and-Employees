@@ -1,11 +1,13 @@
 package com.construct.constructAthens.Submit;
 
+import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeDTO;
 import com.construct.constructAthens.Employees.exception.NotFoundEx;
 import com.construct.constructAthens.Employees.exception.NotYetImplementedEx;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import jakarta.validation.Valid;
@@ -66,14 +68,30 @@ public class SubmitController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @PatchMapping("/edit/{id}")
-    public ResponseEntity<Boolean> updatePartially(@PathVariable(name = "id") Long id,
-                                                   @RequestBody SubmitDto dto) throws NotYetImplementedEx, NotFoundEx {
-        if (dto.getOp().equalsIgnoreCase("update")) {
-            boolean result = submitService.partialUpdate(id, dto.getKey(), dto.getValue());
-            return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
-        } else {
-            throw new NotYetImplementedEx("NOT_YET_IMPLEMENTED");
+
+    @PatchMapping(path = "/patchEdit/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<Submit> updateSubmit(@PathVariable Long id, @RequestBody List<SubmitDto> submitDTO) {
+        try {
+            Optional<Submit> submit = submitService.getSubmitById(id);
+            Submit submitPatched = applyPatchToSubmit(submitDTO, submit.orElse(null));
+            submitService.saveSubmit(submitPatched);
+            return ResponseEntity.ok(submitPatched);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    private Submit applyPatchToSubmit(List<SubmitDto> submitDTO, Submit targetSubmit) throws JsonProcessingException {
+        ObjectNode targetNode = objectMapper.valueToTree(targetSubmit);
+
+        for (SubmitDto submitD : submitDTO) {
+            if ("replace".equals(submitD.getOp())) {
+                targetNode.put(submitD.getKey(), submitD.getValue());
+            }
+        }
+
+        return objectMapper.treeToValue(targetNode, Submit.class);
     }
 }

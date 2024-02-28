@@ -106,18 +106,7 @@ public class EmployeeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @PatchMapping(path = "/edit/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Boolean> updatePartially(@PathVariable(name = "id") Long id,
-                                                   @RequestBody EmployeeDTO dto) throws NotYetImplementedEx, NotFoundEx {
-
-        if (dto.getOp().equalsIgnoreCase("update")) {
-            boolean result = employeeService.partialUpdate(id, dto.getKey(), dto.getValue());
-            return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
-        } else {
-            throw new NotYetImplementedEx("NOT_YET_IMPLEMENTED");
-        }
-    }
-    @PatchMapping(path = "/{id}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "/patchEdit/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody List<EmployeeDTO> employeeDTOList) {
         try {
             Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -138,11 +127,8 @@ public class EmployeeController {
             if ("replace".equals(employeeDTO.getOp())) {
                 targetNode.put(employeeDTO.getKey(), employeeDTO.getValue());
             }
-
         }
 
         return objectMapper.treeToValue(targetNode, Employee.class);
     }
-
-
 }
