@@ -1,5 +1,6 @@
 package com.construct.constructAthens.Employees;
 
+import com.construct.constructAthens.security.entity.UserInfo;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -11,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,13 +22,15 @@ import java.util.List;
 @Entity
 public class Employee {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
 
     @NotNull
     @Size(min = 0, max = 20)
-    private String name;
-
+    private String username;
+    @Column(name = "Nume_complet")
+    private String numecomplet;
     private String imageURL;
     @Email
     private String email;
@@ -53,10 +57,9 @@ public class Employee {
     private String signature;
     private String education;
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
-
 
     public void setImageUrl(String imageURL) {
         this.imageURL = imageURL;

@@ -21,9 +21,11 @@ import java.util.stream.Collectors;
 public class JwtService {
 
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
-    public String generateToken(String userName, Collection<? extends GrantedAuthority> authorities) {
+    public String generateToken(String userName, Collection<? extends GrantedAuthority> authorities, String id) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        claims.put("id", id);
+
         return createToken(claims, userName);
     }
 
@@ -33,8 +35,10 @@ public class JwtService {
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
+
 
     private Key getSignKey() {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET);

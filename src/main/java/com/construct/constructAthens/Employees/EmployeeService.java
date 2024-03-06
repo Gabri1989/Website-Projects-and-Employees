@@ -1,22 +1,13 @@
 package com.construct.constructAthens.Employees;
 
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobClientBuilder;
-import com.construct.constructAthens.Employees.exception.NotFoundEx;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.construct.constructAthens.security.UserInfoRepository;
+import com.construct.constructAthens.security.entity.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +17,8 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository ;
     @Value("${spring.cloud.azure.storage.blob.connection-string}")
     private String azureStorageConnectionString;
+
+   // private UserInfoRepository userInfoRepository;
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
@@ -35,11 +28,14 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public Optional<Employee> getEmployeeById(Long id)  {
+    public Optional<Employee> getEmployeeById(UUID id)  {
         return employeeRepository.findById(id);
 
     }
-    public EmployeeSkills getEmployeeSkillsById(Long employeeId) {
+    public Employee getEmployeeByUsername(String username){
+        return employeeRepository.findEmployeeByUsername(username);
+    }
+    public EmployeeSkills getEmployeeSkillsById(UUID employeeId) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
 
         if (optionalEmployee.isPresent()) {
@@ -58,10 +54,12 @@ public class EmployeeService {
         return employeeSkills;
     }
     public Employee saveEmployee(Employee employee) {
+        UUID userId=UUID.randomUUID();
+        employee.setId(userId);
         return employeeRepository.save(employee);
     }
 
-    public void deleteEmployee(Long id) {
+    public void deleteEmployee(UUID id) {
         employeeRepository.deleteById(id);
     }
 

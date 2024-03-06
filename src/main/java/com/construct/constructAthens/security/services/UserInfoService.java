@@ -1,5 +1,7 @@
 package com.construct.constructAthens.security.services;
 
+import com.construct.constructAthens.Employees.Employee;
+import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.security.UserInfoRepository;
 import com.construct.constructAthens.security.entity.UserInfo;
 import com.construct.constructAthens.security.entity.UserInfoDto;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,16 +22,13 @@ public class UserInfoService implements UserDetailsService {
 
     @Autowired
     private UserInfoRepository repository;
-
     @Autowired
     private PasswordEncoder encoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<UserInfo> userDetail = repository.findByName(username);
-
-        // Converting userDetail to UserDetails
+        Optional<UserInfo> userDetail = repository.findByUsername(username);
         return userDetail.map(UserInfoDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }
@@ -38,7 +38,7 @@ public class UserInfoService implements UserDetailsService {
         repository.save(userInfo);
         return "User Added Successfully";
     }
-    public Optional<UserInfo> getUserById(int id) {
+    public Optional<UserInfo> getUserById(UUID id) {
         return repository.findById(id);
     }
 
@@ -46,7 +46,7 @@ public class UserInfoService implements UserDetailsService {
         return repository.findAll();
     }
 
-    public void deleteUserById(int id) {
+    public void deleteUserById(UUID id) {
         repository.deleteById(id);
     }
     public List<UserInfoDto> getAllUsersDTO() {
@@ -59,7 +59,7 @@ public class UserInfoService implements UserDetailsService {
     private UserInfoDto convertToDto(UserInfo user) {
         UserInfoDto dto = new UserInfoDto();
         dto.setId(user.getId());
-        dto.setName(user.getName());
+        dto.setUsername(user.getUsername());
         dto.setRoles(user.getRoles());
         return dto;
     }

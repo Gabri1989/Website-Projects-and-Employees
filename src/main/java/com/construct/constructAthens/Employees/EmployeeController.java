@@ -6,6 +6,8 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.construct.constructAthens.AzureStorage.StorageService;
 import com.construct.constructAthens.Employees.exception.NotFoundEx;
 import com.construct.constructAthens.Employees.exception.NotYetImplementedEx;
+import com.construct.constructAthens.security.UserInfoRepository;
+import com.construct.constructAthens.security.entity.UserInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +48,7 @@ public class EmployeeController {
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
     @GetMapping("/skills/{employeeId}")
-    public ResponseEntity<EmployeeSkills> getEmployeeSkillsById(@PathVariable Long employeeId) {
+    public ResponseEntity<EmployeeSkills> getEmployeeSkillsById(@PathVariable UUID employeeId) {
         EmployeeSkills employeeSkills = employeeService.getEmployeeSkillsById(employeeId);
 
         if (employeeSkills != null) {
@@ -56,7 +58,7 @@ public class EmployeeController {
         }
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         return employee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -67,6 +69,7 @@ public class EmployeeController {
         Employee savedEmployee = employeeService.saveEmployee(employee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
+
    /*@PostMapping("/create")
    public ResponseEntity<Employee> addEmployee(
            @RequestPart("employee") Employee employee,
@@ -85,19 +88,21 @@ public class EmployeeController {
 
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee updatedEmployee) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
         Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
         if (existingEmployee.isPresent()) {
             updatedEmployee.setId(id);
             Employee savedEmployee = employeeService.saveEmployee(updatedEmployee);
+
             return new ResponseEntity<>(savedEmployee, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
+
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEmployee(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         if (employee.isPresent()) {
             employeeService.deleteEmployee(id);
@@ -107,7 +112,7 @@ public class EmployeeController {
         }
     }
     @PatchMapping(path = "/patchEdit/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody List<EmployeeDTO> employeeDTOList) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody List<EmployeeDTO> employeeDTOList) {
         try {
             Optional<Employee> employee = employeeService.getEmployeeById(id);
             Employee employeePatched = applyPatchToEmployee(employeeDTOList, employee.orElse(null));
