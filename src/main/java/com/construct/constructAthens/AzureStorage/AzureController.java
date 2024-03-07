@@ -19,7 +19,7 @@ public class AzureController {
     @Autowired
     private StorageService azureBlobAdapter;
 
-    @PostMapping("/createImage")
+    @PostMapping(path="/createImage",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> upload
             (@RequestParam MultipartFile file)
             throws IOException {

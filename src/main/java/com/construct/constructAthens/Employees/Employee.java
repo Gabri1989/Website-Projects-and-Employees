@@ -1,6 +1,7 @@
 package com.construct.constructAthens.Employees;
 
 import com.construct.constructAthens.security.entity.UserInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -24,13 +25,12 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-
     @NotNull
     @Size(min = 0, max = 20)
     private String username;
     @Column(name = "Nume_complet")
     private String numecomplet;
+    @JsonIgnore
     private String imageURL;
     @Email
     private String email;
@@ -53,7 +53,9 @@ public class Employee {
     private String skillName;
     private String level;
     private String experience;
+    @JsonIgnore
     private String curiculum;
+    @JsonIgnore
     private String signature;
     private String education;
 
@@ -61,15 +63,14 @@ public class Employee {
         this.id = id;
     }
 
-    public void setImageUrl(String imageURL) {
-        this.imageURL = imageURL;
-    }
 
 
+    //public void setImageUrl(String imageURL) {
+      //  this.imageURL = imageURL;
+   // }
 
-
-    public String getImageUrl() {
-        return imageURL;
-    }
+    //public String getImageUrl() {
+     //   return imageURL;
+    //}
 }
 

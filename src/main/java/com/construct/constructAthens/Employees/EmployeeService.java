@@ -1,7 +1,5 @@
 package com.construct.constructAthens.Employees;
 
-import com.construct.constructAthens.security.UserInfoRepository;
-import com.construct.constructAthens.security.entity.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +16,6 @@ public class EmployeeService {
     @Value("${spring.cloud.azure.storage.blob.connection-string}")
     private String azureStorageConnectionString;
 
-   // private UserInfoRepository userInfoRepository;
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;

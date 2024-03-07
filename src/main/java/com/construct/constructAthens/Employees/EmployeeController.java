@@ -17,9 +17,11 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,7 +36,7 @@ public class EmployeeController {
     @Autowired
     private final EmployeeService employeeService;
     @Autowired
-    private StorageService azureBlobAdapter;
+    private StorageService azureBlobStorageService;
     @Autowired
     public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService) {
         this.objectMapper = objectMapper;
@@ -64,28 +66,23 @@ public class EmployeeController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee) {
+    @PostMapping(path="/createEmployee",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Employee> createEmployee(
+            @RequestParam("imageURL") MultipartFile imageURL,
+            @RequestParam("curiculum") MultipartFile curiculum,
+            @RequestParam("signature") MultipartFile signature,
+            @RequestBody Employee employee) throws IOException {
+
+        String imageUrl = azureBlobStorageService.upload(imageURL);
+        String curriculumUrl = azureBlobStorageService.upload(curiculum);
+        String signatureUrl = azureBlobStorageService.upload(signature);
+
+        employee.setImageURL(imageUrl);
+        employee.setCuriculum(curriculumUrl);
+        employee.setSignature(signatureUrl);
         Employee savedEmployee = employeeService.saveEmployee(employee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
-
-   /*@PostMapping("/create")
-   public ResponseEntity<Employee> addEmployee(
-           @RequestPart("employee") Employee employee,
-           @RequestPart("profileImage") MultipartFile file) {
-
-       try {
-           String imageUrl = azureBlobAdapter.upload(file);
-           employee.setImageUrl(imageUrl);
-           Employee savedEmployee = employeeService.saveEmployee(employee);
-           return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
-       } catch (IOException e) {
-           e.printStackTrace();
-           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-       }
-   }*/
-
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
