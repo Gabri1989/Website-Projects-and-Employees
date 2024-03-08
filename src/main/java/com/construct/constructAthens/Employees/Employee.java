@@ -30,7 +30,6 @@ public class Employee {
     private String username;
     @Column(name = "Nume_complet")
     private String numecomplet;
-    @JsonIgnore
     private String imageURL;
     @Email
     private String email;
@@ -53,9 +52,7 @@ public class Employee {
     private String skillName;
     private String level;
     private String experience;
-    @JsonIgnore
     private String curiculum;
-    @JsonIgnore
     private String signature;
     private String education;
 
