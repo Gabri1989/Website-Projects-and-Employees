@@ -1,10 +1,16 @@
 package com.construct.constructAthens.Employees;
 
+import com.construct.constructAthens.AzureStorage.StorageService;
+import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -15,10 +21,16 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository ;
     @Value("${spring.cloud.azure.storage.blob.connection-string}")
     private String azureStorageConnectionString;
+    private StorageService azureBlobAdapter;
+    @Autowired
+
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, ObjectMapper objectMapper,StorageService azureBlobAdapter)        {
         this.employeeRepository = employeeRepository;
+        this.azureBlobAdapter=azureBlobAdapter;
+        this.objectMapper = objectMapper;
     }
 
     public List<Employee> getAllEmployees() {
@@ -32,24 +44,7 @@ public class EmployeeService {
     public Employee getEmployeeByUsername(String username){
         return employeeRepository.findEmployeeByUsername(username);
     }
-    public EmployeeSkills getEmployeeSkillsById(UUID employeeId) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
 
-        if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            return mapToEmployeeSkills(employee);
-        } else {
-            return null;
-        }
-    }
-
-    private EmployeeSkills mapToEmployeeSkills(Employee employee) {
-        EmployeeSkills employeeSkills = new EmployeeSkills();
-        employeeSkills.setSkillName(employee.getSkillName());
-        employeeSkills.setLevel(employee.getLevel());
-        employeeSkills.setExperience(employee.getExperience());
-        return employeeSkills;
-    }
     public Employee saveEmployee(Employee employee) {
         UUID userId=UUID.randomUUID();
         employee.setId(userId);
@@ -59,5 +54,12 @@ public class EmployeeService {
     public void deleteEmployee(UUID id) {
         employeeRepository.deleteById(id);
     }
+    public Collection<Skill> getSkillsByEmployeeId(UUID employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + employeeId));
+
+        return employee.getSkills();
+    }
+
 
 }

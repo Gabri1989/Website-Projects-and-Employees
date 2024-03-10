@@ -1,6 +1,9 @@
 package com.construct.constructAthens.AzureStorage;
 
+import com.construct.constructAthens.Employees.Employee;
+import com.construct.constructAthens.Employees.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,16 +15,18 @@ import org.springframework.http.MediaType;
 import java.io.IOException;
 import java.util.List;
 import java.net.URISyntaxException;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/files")
 public class AzureController {
 
     @Autowired
     private StorageService azureBlobAdapter;
-
+    private EmployeeRepository empRep;
     @PostMapping(path="/createImage",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> upload
-            (@RequestParam MultipartFile file)
+            (@RequestParam MultipartFile file )
             throws IOException {
 
         String fileName = azureBlobAdapter.upload(file);

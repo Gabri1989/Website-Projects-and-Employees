@@ -1,7 +1,9 @@
 package com.construct.constructAthens.Employees;
 
-import com.construct.constructAthens.security.entity.UserInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.construct.constructAthens.Employees.Employee_dependencies.ForeignLanguage;
+import com.construct.constructAthens.Employees.Employee_dependencies.Projects;
+import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
+import com.construct.constructAthens.Employees.Employee_dependencies.WeekSchedule;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -11,8 +13,9 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -25,6 +28,14 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @ElementCollection
+    Collection<Skill> skills;
+    @ElementCollection
+    Collection<ForeignLanguage> foreignLanguages;
+    @ElementCollection
+    Collection<Projects> projects;
+    @ElementCollection
+    Collection<WeekSchedule> weekSchedules;
     @NotNull
     @Size(min = 0, max = 20)
     private String username;
@@ -42,32 +53,23 @@ public class Employee {
     private LocalDate employmentDate;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate birthday;
-
+    private String motherLanguage;
     private String nationality;
     private int kids;
+
+    private float timegps;
     private String emergencyContact;
     private String emergencyPhone;
-    private String motherLanguage;
-    private String foreignLanguage;
-    private String skillName;
-    private String level;
-    private String experience;
     private String curiculum;
     private String signature;
     private String education;
+
+
 
     public void setId(UUID id) {
         this.id = id;
     }
 
 
-
-    //public void setImageUrl(String imageURL) {
-      //  this.imageURL = imageURL;
-   // }
-
-    //public String getImageUrl() {
-     //   return imageURL;
-    //}
 }
 
