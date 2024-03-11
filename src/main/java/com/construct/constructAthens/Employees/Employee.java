@@ -1,9 +1,6 @@
 package com.construct.constructAthens.Employees;
 
-import com.construct.constructAthens.Employees.Employee_dependencies.ForeignLanguage;
-import com.construct.constructAthens.Employees.Employee_dependencies.Projects;
-import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
-import com.construct.constructAthens.Employees.Employee_dependencies.WeekSchedule;
+import com.construct.constructAthens.Employees.Employee_dependencies.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -36,11 +33,12 @@ public class Employee {
     Collection<Projects> projects;
     @ElementCollection
     Collection<WeekSchedule> weekSchedules;
+
     @NotNull
     @Size(min = 0, max = 20)
     private String username;
-    @Column(name = "Nume_complet")
-    private String numecomplet;
+    @Column(name = "fullname")
+    private String fullname;
     private String imageURL;
     @Email
     private String email;
@@ -53,19 +51,13 @@ public class Employee {
     private LocalDate employmentDate;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate birthday;
-    private String motherLanguage;
     private String nationality;
     private int kids;
-
-    private float timegps;
     private String emergencyContact;
     private String emergencyPhone;
-    private String curiculum;
-    private String signature;
     private String education;
-
-
-
+    private double timegps;
+    private String motherLanguage;
     public void setId(UUID id) {
         this.id = id;
     }

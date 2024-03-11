@@ -11,13 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/employees")
 @CrossOrigin(origins = "*")
-public class EmployeeController {
+public class EmployeeController{
     private final ObjectMapper objectMapper;
     @Autowired
     private final EmployeeService employeeService;
@@ -96,5 +97,6 @@ public class EmployeeController {
     public Collection<Skill> getSkillsByEmployeeId(@PathVariable UUID employeeId) {
         return employeeService.getSkillsByEmployeeId(employeeId);
     }
+
 
 }
