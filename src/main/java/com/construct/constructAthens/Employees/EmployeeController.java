@@ -93,10 +93,10 @@ public class EmployeeController{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/{employeeId}/skills")
+   /* @GetMapping("/{employeeId}/skills")
     public Collection<Skill> getSkillsByEmployeeId(@PathVariable UUID employeeId) {
         return employeeService.getSkillsByEmployeeId(employeeId);
-    }
+    }*/
 
 
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -21,12 +22,32 @@ public class Projects {
     private String role;
     private String headOfSite;
     private MyContribution myContribution;
+
     public enum ProjectStatus {
         ON_GOING,
         FINISHED
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Projects projects = (Projects) o;
+        return timpPerDate == projects.timpPerDate &&
+                Objects.equals(nameProject, projects.nameProject) &&
+                statusProject == projects.statusProject &&
+                Objects.equals(role, projects.role) &&
+                Objects.equals(headOfSite, projects.headOfSite) &&
+                Objects.equals(myContribution, projects.myContribution);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nameProject, statusProject, timpPerDate, role, headOfSite, myContribution);
+    }
+
     @Embeddable
-    public class MyContribution {
+    public static class MyContribution {
         private LocalDate startDataContribution;
         private LocalDate endDataContribution;
 
@@ -36,7 +57,6 @@ public class Projects {
         }
 
         public MyContribution() {
-
         }
 
         public LocalDate getStartDataContribution() {
@@ -53,6 +73,20 @@ public class Projects {
 
         public void setEndDataContribution(LocalDate endDataContribution) {
             this.endDataContribution = endDataContribution;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MyContribution that = (MyContribution) o;
+            return Objects.equals(startDataContribution, that.startDataContribution) &&
+                    Objects.equals(endDataContribution, that.endDataContribution);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(startDataContribution, endDataContribution);
         }
     }
 }
