@@ -9,10 +9,12 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatusCode;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -21,7 +23,8 @@ import java.util.UUID;
 @Tag(name = "Employee", description = "employees")
 @Table(name = "employees")
 @Entity
-public class Employee {
+public class Employee  {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -58,10 +61,22 @@ public class Employee {
     private String education;
     private double timegps;
     private String motherLanguage;
+
     public void setId(UUID id) {
         this.id = id;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Employee employee = (Employee) o;
+        return kids == employee.kids && Double.compare(timegps, employee.timegps) == 0 && Objects.equals(id, employee.id) && Objects.equals(username, employee.username) && Objects.equals(fullname, employee.fullname) && Objects.equals(imageURL, employee.imageURL) && Objects.equals(email, employee.email) && Objects.equals(number, employee.number) && Objects.equals(adress, employee.adress) && Objects.equals(CNP, employee.CNP) && Objects.equals(employmentDate, employee.employmentDate) && Objects.equals(birthday, employee.birthday) && Objects.equals(nationality, employee.nationality) && Objects.equals(emergencyContact, employee.emergencyContact) && Objects.equals(emergencyPhone, employee.emergencyPhone) && Objects.equals(education, employee.education) && Objects.equals(motherLanguage, employee.motherLanguage);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, fullname, imageURL, email, number, adress, CNP, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage);
+    }
 }
 

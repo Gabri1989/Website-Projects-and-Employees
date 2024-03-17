@@ -1,5 +1,9 @@
 package com.construct.constructAthens.AzureStorage;
 
+import com.azure.core.util.BinaryData;
+import com.construct.constructAthens.Employees.Employee;
+import com.construct.constructAthens.Employees.EmployeeRepository;
+import com.construct.constructAthens.Employees.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.azure.core.http.rest.PagedIterable;
@@ -9,33 +13,34 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.InputStream;
+import java.util.*;
 
 @Component
 public class StorageService {
+
     @Autowired
     BlobServiceClient blobServiceClient;
 
     @Autowired
     BlobContainerClient blobContainerClient;
-
-
-    public String upload(MultipartFile multipartFile) throws IOException {
-        String uniqueFilename = generateUniqueFilename(multipartFile.getOriginalFilename());
-        BlobClient blob = blobContainerClient.getBlobClient(uniqueFilename);
-        blob.upload(multipartFile.getInputStream(), multipartFile.getSize(), true);
-        return uniqueFilename;
-    }
+    @Autowired
+    private  EmployeeRepository employeeRepository;
+    @Autowired
+    private EmployeeService employeeService;
+        public String upload(MultipartFile multipartFile) throws IOException {
+            String uniqueFilename = generateUniqueFilename(multipartFile.getOriginalFilename());
+            BlobClient blob = blobContainerClient.getBlobClient(uniqueFilename);
+            blob.upload(multipartFile.getInputStream(), multipartFile.getSize(), true);
+            return uniqueFilename;
+        }
 
     private String generateUniqueFilename(String originalFilename) {
         String uuid = UUID.randomUUID().toString();
+
         String extension = getFileExtension(originalFilename);
-        return uuid + "." + extension;
+        return  uuid+"."+ extension;
     }
 
     private String getFileExtension(String filename) {
@@ -56,11 +61,13 @@ public class StorageService {
         return names;
 
     }
-
     public Boolean deleteBlob(String blobName) {
 
         BlobClient blob = blobContainerClient.getBlobClient(blobName);
         blob.delete();
         return true;
     }
+
+
+
 }
