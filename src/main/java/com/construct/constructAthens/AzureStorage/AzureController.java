@@ -24,7 +24,12 @@ import java.util.UUID;
 public class AzureController {
     @Autowired
     private StorageService azureBlobAdapter;
+    @Autowired
+    private final EmployeeRepository employeeRepository;
 
+    public AzureController(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
     @PostMapping(path="/createImage",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> upload
@@ -33,6 +38,7 @@ public class AzureController {
         String fileName = azureBlobAdapter.upload(file);
         return ResponseEntity.ok(fileName);
     }
+
     @GetMapping("/getImages")
     public ResponseEntity<List<String>> getAllBlobs() {
 

@@ -38,9 +38,9 @@ public class StorageService {
 
     private String generateUniqueFilename(String originalFilename) {
         String uuid = UUID.randomUUID().toString();
-
+       
         String extension = getFileExtension(originalFilename);
-        return  uuid+"."+ extension;
+        return uuid+"."+extension;
     }
 
     private String getFileExtension(String filename) {
@@ -67,7 +67,5 @@ public class StorageService {
         blob.delete();
         return true;
     }
-
-
 
 }

@@ -1,5 +1,7 @@
 package com.construct.constructAthens.Employees;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.construct.constructAthens.AzureStorage.StorageService;
 
 import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
@@ -22,14 +24,19 @@ public class EmployeeController{
     private final ObjectMapper objectMapper;
     @Autowired
     private final EmployeeService employeeService;
-
+    @Autowired
+    private final EmployeeRepository employeeRepository;
+    private final BlobContainerClient blobContainerClient;
     @Autowired
     private StorageService azureBlobStorageService;
+
     @Autowired
-    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService) {
+    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService, EmployeeRepository employeeRepository, BlobContainerClient blobContainerClient) {
         this.objectMapper = objectMapper;
         this.employeeService = employeeService;
+        this.employeeRepository = employeeRepository;
 
+        this.blobContainerClient = blobContainerClient;
     }
 
     @GetMapping
@@ -44,30 +51,13 @@ public class EmployeeController{
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-   /* @PostMapping(path="/createEmployee",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Employee> createEmployee(
-            @RequestParam("imageURL") MultipartFile imageURL,
-            @RequestParam("curiculum") MultipartFile curiculum,
-            @RequestParam("signature") MultipartFile signature,
-            @PathVariable UUID uuid) throws IOException {
-            // CONVERSIA BASE64 SAU fILE
-        String imageUrl = azureBlobStorageService.upload(imageURL);
-        String curriculumUrl = azureBlobStorageService.upload(curiculum);
-        String signatureUrl = azureBlobStorageService.upload(signature);
-
-        employee.setImageURL(imageUrl);
-        employee.setCuriculum(curriculumUrl);
-        employee.setSignature(signatureUrl);
-        Employee savedEmployee = employeeService.saveEmployee(employee);
-        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
-    }*/
-
-    @PostMapping("/createEmployee")
+   /* @PostMapping("/createEmployee")
     public Employee saveEmployee(@RequestBody Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
         return employeeService.saveEmployee(employee);
-    }
+    }*/
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
         Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);

@@ -57,8 +57,14 @@ public class EmployeeService {
         return employeeRepository.findEmployeeByUsername(username);
     }
 
-
     public Employee saveEmployee(Employee employee) {
+        //UUID userId = UUID.randomUUID();
+        //employee.setId(userId);
+        //String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/"+ userId+"png";
+       // employee.setImageURL(imageURL);
+        return employeeRepository.save(employee);
+    }
+   /* public Employee saveEmployee(Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
 
@@ -95,32 +101,31 @@ public class EmployeeService {
         BlobProperties properties = blobClient.getProperties();
         OffsetDateTime lastModified = properties.getLastModified();
         return lastModified.toInstant().toEpochMilli();
-    }
+    }*/
 
     public void deleteEmployee(UUID id) {
         employeeRepository.deleteById(id);
     }
-    /*public Collection<Skill> getSkillsByEmployeeId(UUID employeeId) {
+    public Collection<Skill> getSkillsByEmployeeId(UUID employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + employeeId));
 
         return employee.getSkills();
-    }*/
+    }
     public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
-        Optional<Employee> existingProduct = employeeRepository.findById(id);
+        Optional<Employee> existingEmployee = employeeRepository.findById(id);
 
-        if (existingProduct.isPresent()) {
+        if (existingEmployee.isPresent()) {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Employee.class, key);
                 assert field != null;
                 field.setAccessible(true);
-                ReflectionUtils.setField(field, existingProduct.get(), value);
+                ReflectionUtils.setField(field, existingEmployee.get(), value);
             });
-            return employeeRepository.save(existingProduct.get());
+            return employeeRepository.save(existingEmployee.get());
         }
         return null;
     }
-
 
 
 }

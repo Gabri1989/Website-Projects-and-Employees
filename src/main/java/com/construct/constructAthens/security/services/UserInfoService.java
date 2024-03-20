@@ -5,6 +5,7 @@ import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.security.UserInfoRepository;
 import com.construct.constructAthens.security.entity.UserInfo;
 import com.construct.constructAthens.security.entity.UserInfoDto;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,16 +15,26 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@NoArgsConstructor
 public class UserInfoService implements UserDetailsService {
 
     @Autowired
     private UserInfoRepository repository;
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    /*public UserInfoService(UserInfoRepository repository) {
+        this.employeeRepository = employeeRepository;
+        this.repository=repository;
+        this.encoder=encoder;
+    }*/
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -35,7 +46,15 @@ public class UserInfoService implements UserDetailsService {
 
     public String addUser(UserInfo userInfo) {
         userInfo.setPassword(encoder.encode(userInfo.getPassword()));
-        repository.save(userInfo);
+        UUID userId = UUID.randomUUID();
+        userInfo.setId(userId);
+        UserInfo savedUser = repository.save(userInfo);
+        UUID userid = savedUser.getId();
+        String username = savedUser.getUsername();
+        Employee employee = new Employee();
+        employee.setId(userid);
+        employee.setUsername(username);
+        employeeRepository.save(employee);
         return "User Added Successfully";
     }
     public Optional<UserInfo> getUserById(UUID id) {

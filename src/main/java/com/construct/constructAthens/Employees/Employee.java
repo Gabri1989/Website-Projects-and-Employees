@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Tag(name = "Employee", description = "employees")
@@ -26,7 +25,6 @@ import java.util.UUID;
 public class Employee  {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ElementCollection
     Collection<Skill> skills;
@@ -37,15 +35,13 @@ public class Employee  {
     @ElementCollection
     Collection<WeekSchedule> weekSchedules;
 
-    @NotNull
-    @Size(min = 0, max = 20)
+
+    @Size(min = 1, max = 20)
     private String username;
     @Column(name = "fullname")
     private String fullname;
     private String imageURL;
-    @Email
     private String email;
-    @NotNull
     @Pattern(regexp = "\\+?[0-9]+")
     private String number;
     private String adress;
@@ -61,7 +57,9 @@ public class Employee  {
     private String education;
     private double timegps;
     private String motherLanguage;
-
+    public Employee() {
+        this.id = UUID.randomUUID();
+    }
     public void setId(UUID id) {
         this.id = id;
     }
