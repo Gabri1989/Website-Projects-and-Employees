@@ -7,11 +7,13 @@ import com.construct.constructAthens.security.entity.UserInfo;
 import com.construct.constructAthens.security.entity.UserInfoDto;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,26 +46,27 @@ public class UserInfoService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }
 
-    public String addUser(UserInfo userInfo) {
+    public ResponseEntity<String> addUser(UserInfo userInfo) {
         try {
             // Check if the username already exists
             if (repository.existsByUsername(userInfo.getUsername())) {
-                throw new RuntimeException("Username already exists");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
             }
-        userInfo.setPassword(encoder.encode(userInfo.getPassword()));
-        UUID userId = UUID.randomUUID();
-        userInfo.setId(userId);
-        UserInfo savedUser = repository.save(userInfo);
-        UUID userid = savedUser.getId();
-        String username = savedUser.getUsername();
-        Employee employee = new Employee();
-        employee.setId(userid);
-        employee.setUsername(username);
-        employeeRepository.save(employee);
-        return "User Added Successfully";
+
+            userInfo.setPassword(encoder.encode(userInfo.getPassword()));
+            UUID userId = UUID.randomUUID();
+            userInfo.setId(userId);
+            UserInfo savedUser = repository.save(userInfo);
+            UUID userid = savedUser.getId();
+            String username = savedUser.getUsername();
+            Employee employee = new Employee();
+            employee.setId(userid);
+            employee.setUsername(username);
+            employeeRepository.save(employee);
+            return ResponseEntity.ok("User Added Successfully");
         } catch (Exception e) {
             // Handle the exception and return an appropriate response
-            return "Error: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
     public Optional<UserInfo> getUserById(UUID id) {
