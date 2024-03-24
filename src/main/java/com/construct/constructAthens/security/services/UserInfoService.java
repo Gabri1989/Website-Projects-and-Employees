@@ -45,6 +45,11 @@ public class UserInfoService implements UserDetailsService {
     }
 
     public String addUser(UserInfo userInfo) {
+        try {
+            // Check if the username already exists
+            if (repository.existsByUsername(userInfo.getUsername())) {
+                throw new RuntimeException("Username already exists");
+            }
         userInfo.setPassword(encoder.encode(userInfo.getPassword()));
         UUID userId = UUID.randomUUID();
         userInfo.setId(userId);
@@ -56,6 +61,10 @@ public class UserInfoService implements UserDetailsService {
         employee.setUsername(username);
         employeeRepository.save(employee);
         return "User Added Successfully";
+        } catch (Exception e) {
+            // Handle the exception and return an appropriate response
+            return "Error: " + e.getMessage();
+        }
     }
     public Optional<UserInfo> getUserById(UUID id) {
         return repository.findById(id);
@@ -67,6 +76,7 @@ public class UserInfoService implements UserDetailsService {
 
     public void deleteUserById(UUID id) {
         repository.deleteById(id);
+        employeeRepository.deleteById(id);
     }
     public List<UserInfoDto> getAllUsersDTO() {
         List<UserInfo> users = repository.findAll();
