@@ -1,8 +1,7 @@
 package com.construct.constructAthens.Employees.Employee_dependencies;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.construct.constructAthens.Projects.Projects;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class Projects {
+public class ProjectsEmployee {
     private String nameProject;
     @Enumerated(EnumType.STRING)
     private ProjectStatus statusProject;
@@ -22,6 +21,10 @@ public class Projects {
     private String role;
     private String headOfSite;
     private MyContribution myContribution;
+    @ManyToOne
+    @JoinColumn(name = "projectId")
+    private Projects project;
+
 
     public enum ProjectStatus {
         ON_GOING,
@@ -32,7 +35,7 @@ public class Projects {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Projects projects = (Projects) o;
+        ProjectsEmployee projects = (ProjectsEmployee) o;
         return timpPerDate == projects.timpPerDate &&
                 Objects.equals(nameProject, projects.nameProject) &&
                 statusProject == projects.statusProject &&
@@ -43,6 +46,7 @@ public class Projects {
 
     @Override
     public int hashCode() {
+        //return Objects.hash( timpPerDate, role, myContribution);
         return Objects.hash(nameProject, statusProject, timpPerDate, role, headOfSite, myContribution);
     }
 

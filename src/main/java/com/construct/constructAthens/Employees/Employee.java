@@ -1,6 +1,7 @@
 package com.construct.constructAthens.Employees;
 
 import com.construct.constructAthens.Employees.Employee_dependencies.*;
+import com.construct.constructAthens.Projects.Projects;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatusCode;
 import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,10 +33,9 @@ public class Employee  {
     @ElementCollection
     Collection<ForeignLanguage> foreignLanguages;
     @ElementCollection
-    Collection<Projects> projects;
+    Collection<ProjectsEmployee> projects;
     @ElementCollection
     Collection<WeekSchedule> weekSchedules;
-
 
     @Size(min = 1, max = 20)
     private String username;
@@ -42,7 +43,7 @@ public class Employee  {
     private String fullname;
     private String imageURL;
     private String email;
-    @Pattern(regexp = "\\+?[0-9]+")
+
     private String number;
     private String adress;
     private String CNP;

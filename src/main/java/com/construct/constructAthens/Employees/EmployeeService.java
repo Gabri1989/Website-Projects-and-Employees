@@ -112,7 +112,7 @@ public class EmployeeService {
 
         return employee.getSkills();
     }
-    public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
+/*    public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
 
         if (existingEmployee.isPresent()) {
@@ -125,7 +125,53 @@ public class EmployeeService {
             return employeeRepository.save(existingEmployee.get());
         }
         return null;
+    }*/
+public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
+    Optional<Employee> existingEmployee = employeeRepository.findById(id);
+
+    if (existingEmployee.isPresent()) {
+        Employee employee = existingEmployee.get();
+        fields.forEach((key, value) -> {
+            setField(employee, key, value);
+        });
+        return employeeRepository.save(employee);
     }
+    return null;
+}
+
+    private void setField(Object object, String fieldName, Object value) {
+        try {
+            Field field = ReflectionUtils.findField(object.getClass(), fieldName);
+            if (field != null) {
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, object, value);
+            } else {
+                // Handle nested fields using dot notation
+                String[] nestedFields = fieldName.split("\\.");
+                Object nestedObject = object;
+                for (String nestedField : nestedFields) {
+                    Field nestedFieldObject = ReflectionUtils.findField(nestedObject.getClass(), nestedField);
+                    if (nestedFieldObject != null) {
+                        nestedFieldObject.setAccessible(true);
+                        nestedObject = nestedFieldObject.get(nestedObject);
+                    } else {
+                        throw new IllegalArgumentException("Field " + nestedField + " not found in " + nestedObject.getClass().getName());
+                    }
+                }
+                if (nestedObject != null) {
+                    Field finalField = nestedObject.getClass().getDeclaredField(nestedFields[nestedFields.length - 1]);
+                    finalField.setAccessible(true);
+                    finalField.set(nestedObject, value);
+                } else {
+                    throw new IllegalArgumentException("Nested object is null");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle exception accordingly
+        }
+    }
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.construct.constructAthens.Employees;
 
+import com.construct.constructAthens.Employees.Employee_dependencies.ProjectsEmployee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,8 +15,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Employee findEmployeeByUsername (String username);
     Optional<Employee> findById(UUID id);
     Employee findEmployeeById(UUID id);
-
-
-
 
 }
