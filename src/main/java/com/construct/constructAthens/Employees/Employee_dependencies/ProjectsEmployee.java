@@ -15,21 +15,15 @@ import java.util.Objects;
 @Embeddable
 public class ProjectsEmployee {
     private String nameProject;
-    @Enumerated(EnumType.STRING)
-    private ProjectStatus statusProject;
+    private String statusProject;
     private int timpPerDate;
     private String role;
     private String headOfSite;
     private MyContribution myContribution;
-    @ManyToOne
+   /* @ManyToOne
     @JoinColumn(name = "projectId")
-    private Projects project;
+    private Projects project;*/
 
-
-    public enum ProjectStatus {
-        ON_GOING,
-        FINISHED
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -38,7 +32,7 @@ public class ProjectsEmployee {
         ProjectsEmployee projects = (ProjectsEmployee) o;
         return timpPerDate == projects.timpPerDate &&
                 Objects.equals(nameProject, projects.nameProject) &&
-                statusProject == projects.statusProject &&
+                Objects.equals(statusProject, projects.statusProject) &&
                 Objects.equals(role, projects.role) &&
                 Objects.equals(headOfSite, projects.headOfSite) &&
                 Objects.equals(myContribution, projects.myContribution);
