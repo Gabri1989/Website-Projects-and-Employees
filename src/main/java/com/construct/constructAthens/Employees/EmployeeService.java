@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobProperties;
 import com.construct.constructAthens.AzureStorage.StorageService;
+import com.construct.constructAthens.Employees.Employee_dependencies.ForeignLanguage;
 import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -112,66 +114,74 @@ public class EmployeeService {
 
         return employee.getSkills();
     }
-/*    public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
+    public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
+        Optional<Employee> existingEmployee = employeeRepository.findById(id);
+
+        if (existingEmployee.isPresent()) {
+            fields.forEach((key, value) -> {
+                if (key.equals("foreignLanguages") && value instanceof List) {
+                    List<Map<String, String>> updatedLanguages = (List<Map<String, String>>) value;
+                    for (Map<String, String> updatedLanguage : updatedLanguages) {
+                        String languageName = updatedLanguage.get("name");
+                        String languageLevel = updatedLanguage.get("level");
+                        Optional<ForeignLanguage> existingLanguage = existingEmployee.get().getForeignLanguages().stream()
+                                .filter(language -> language.getName().equals(languageName))
+                                .findFirst();
+                        if (existingLanguage.isPresent()) {
+                            existingLanguage.get().setLevel(languageLevel);
+                        } else {
+                            ForeignLanguage foreignLanguage = new ForeignLanguage();
+                            foreignLanguage.setName(languageName);
+                            foreignLanguage.setLevel(languageLevel);
+                            existingEmployee.get().getForeignLanguages().add(foreignLanguage);
+                        }
+                    }
+                } else {
+                    Field field = ReflectionUtils.findField(Employee.class, key);
+                    if (field != null) {
+                        field.setAccessible(true);
+                        try {
+                            if (field.getType() == LocalDate.class && value instanceof String) {
+                                LocalDate dateValue = LocalDate.parse((String) value);
+                                field.set(existingEmployee.get(), dateValue);
+                            } else {
+                                field.set(existingEmployee.get(), value);
+                            }
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            return employeeRepository.save(existingEmployee.get());
+        }
+        return null;
+    }
+
+
+
+    /*public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
 
         if (existingEmployee.isPresent()) {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Employee.class, key);
-                assert field != null;
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, existingEmployee.get(), value);
+                if (field != null) {
+                    field.setAccessible(true);
+                    try {
+                        if (field.getType() == LocalDate.class && value instanceof String) {
+                            LocalDate dateValue = LocalDate.parse((String) value);
+                            field.set(existingEmployee.get(), dateValue);
+                        } else {
+                            field.set(existingEmployee.get(), value);
+                        }
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
             });
             return employeeRepository.save(existingEmployee.get());
         }
         return null;
     }*/
-public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
-    Optional<Employee> existingEmployee = employeeRepository.findById(id);
-
-    if (existingEmployee.isPresent()) {
-        Employee employee = existingEmployee.get();
-        fields.forEach((key, value) -> {
-            setField(employee, key, value);
-        });
-        return employeeRepository.save(employee);
-    }
-    return null;
-}
-
-    private void setField(Object object, String fieldName, Object value) {
-        try {
-            Field field = ReflectionUtils.findField(object.getClass(), fieldName);
-            if (field != null) {
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, object, value);
-            } else {
-                // Handle nested fields using dot notation
-                String[] nestedFields = fieldName.split("\\.");
-                Object nestedObject = object;
-                for (String nestedField : nestedFields) {
-                    Field nestedFieldObject = ReflectionUtils.findField(nestedObject.getClass(), nestedField);
-                    if (nestedFieldObject != null) {
-                        nestedFieldObject.setAccessible(true);
-                        nestedObject = nestedFieldObject.get(nestedObject);
-                    } else {
-                        throw new IllegalArgumentException("Field " + nestedField + " not found in " + nestedObject.getClass().getName());
-                    }
-                }
-                if (nestedObject != null) {
-                    Field finalField = nestedObject.getClass().getDeclaredField(nestedFields[nestedFields.length - 1]);
-                    finalField.setAccessible(true);
-                    finalField.set(nestedObject, value);
-                } else {
-                    throw new IllegalArgumentException("Nested object is null");
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Handle exception accordingly
-        }
-    }
-
-
-
 }

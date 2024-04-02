@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -18,12 +19,12 @@ public class Projects {
     private UUID projectId;
     private String nameProject;
     private String headOfSite;
-    private Date startData;
+    private LocalDate startData;
 
-    private Date endData;
+    private LocalDate endData;
     private double Latitude;
     private double Longitude;
-    private int radius;
+    private double radius;
     @Enumerated(EnumType.STRING)
     private ProjectStatus statusProject;
     @ElementCollection

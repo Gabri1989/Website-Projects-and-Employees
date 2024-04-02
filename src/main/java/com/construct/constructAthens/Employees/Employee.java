@@ -47,9 +47,7 @@ public class Employee  {
     private String number;
     private String adress;
     private String CNP;
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate employmentDate;
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate birthday;
     private String nationality;
     private int kids;
