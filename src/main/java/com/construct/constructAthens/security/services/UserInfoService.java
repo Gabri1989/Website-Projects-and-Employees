@@ -1,5 +1,9 @@
 package com.construct.constructAthens.security.services;
 
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobProperties;
+import com.construct.constructAthens.AzureStorage.StorageService;
 import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.security.UserInfoRepository;
@@ -14,11 +18,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.time.OffsetDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,12 +34,10 @@ public class UserInfoService implements UserDetailsService {
     private PasswordEncoder encoder;
     @Autowired
     private EmployeeRepository employeeRepository;
-
-    /*public UserInfoService(UserInfoRepository repository) {
-        this.employeeRepository = employeeRepository;
-        this.repository=repository;
-        this.encoder=encoder;
-    }*/
+    @Autowired
+    private StorageService azureBlobAdapter;
+    @Autowired
+    private BlobContainerClient blobContainerClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -48,7 +49,6 @@ public class UserInfoService implements UserDetailsService {
 
     public ResponseEntity<String> addUser(UserInfo userInfo) {
         try {
-            // Check if the username already exists
             if (repository.existsByUsername(userInfo.getUsername())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
             }
@@ -59,16 +59,41 @@ public class UserInfoService implements UserDetailsService {
             UserInfo savedUser = repository.save(userInfo);
             UUID userid = savedUser.getId();
             String username = savedUser.getUsername();
+            List<String> blobNames = listBlobs();
+
+            List<String> sortedBlobNames = blobNames.stream()
+                    .sorted(Comparator.comparing(this::getLastModifiedTimestamp).reversed())
+                    .collect(Collectors.toList());
+
+            String lastBlobName = "";
+            if (!sortedBlobNames.isEmpty()) {
+                lastBlobName = sortedBlobNames.get(0);
+                lastBlobName = lastBlobName.substring(lastBlobName.lastIndexOf('/') + 1);
+            }
+            String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/" + lastBlobName;
             Employee employee = new Employee();
             employee.setId(userid);
             employee.setUsername(username);
+            employee.setImageURL(imageURL);
             employeeRepository.save(employee);
             return ResponseEntity.ok("User Added Successfully");
         } catch (Exception e) {
-            // Handle the exception and return an appropriate response
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
+
     }
+    private List<String> listBlobs() {
+        return blobContainerClient.listBlobs().stream()
+                .map(blobItem -> blobItem.getName())
+                .collect(Collectors.toList());
+    }
+    private long getLastModifiedTimestamp(String blobName) {
+        BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
+        BlobProperties properties = blobClient.getProperties();
+        OffsetDateTime lastModified = properties.getLastModified();
+        return lastModified.toInstant().toEpochMilli();
+    }
+
     public Optional<UserInfo> getUserById(UUID id) {
         return repository.findById(id);
     }

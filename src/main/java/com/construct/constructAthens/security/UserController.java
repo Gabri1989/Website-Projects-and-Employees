@@ -44,7 +44,6 @@ public class UserController {
     public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo) {
         return service.addUser(userInfo);
     }
-
     @PostMapping("/generateToken")
     public ResponseEntity<Object> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         try {

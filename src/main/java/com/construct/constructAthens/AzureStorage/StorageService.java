@@ -11,6 +11,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,10 +26,7 @@ public class StorageService {
 
     @Autowired
     BlobContainerClient blobContainerClient;
-    @Autowired
-    private  EmployeeRepository employeeRepository;
-    @Autowired
-    private EmployeeService employeeService;
+
         public String upload(MultipartFile multipartFile) throws IOException {
             String uniqueFilename = generateUniqueFilename(multipartFile.getOriginalFilename());
             BlobClient blob = blobContainerClient.getBlobClient(uniqueFilename);

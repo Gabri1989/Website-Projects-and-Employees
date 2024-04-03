@@ -24,12 +24,6 @@ import java.util.UUID;
 public class AzureController {
     @Autowired
     private StorageService azureBlobAdapter;
-    @Autowired
-    private final EmployeeRepository employeeRepository;
-
-    public AzureController(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
-    }
 
     @PostMapping(path="/createImage",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> upload

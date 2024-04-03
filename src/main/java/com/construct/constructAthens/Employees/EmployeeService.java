@@ -63,50 +63,8 @@ public class EmployeeService {
     }
 
     public Employee saveEmployee(Employee employee) {
-        //UUID userId = UUID.randomUUID();
-        //employee.setId(userId);
-        //String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/"+ userId+"png";
-       // employee.setImageURL(imageURL);
         return employeeRepository.save(employee);
     }
-   /* public Employee saveEmployee(Employee employee) {
-        UUID userId = UUID.randomUUID();
-        employee.setId(userId);
-
-        // Get the list of blobs from the Azure container
-        List<String> blobNames = listBlobs();
-
-        // Sort the list of blob names based on their last modified timestamp
-        List<String> sortedBlobNames = blobNames.stream()
-                .sorted(Comparator.comparing(this::getLastModifiedTimestamp).reversed())
-                .collect(Collectors.toList());
-
-        // Extract the filename part from the last blob's URL
-        String lastBlobName = "";
-        if (!sortedBlobNames.isEmpty()) {
-            lastBlobName = sortedBlobNames.get(0);
-            lastBlobName = lastBlobName.substring(lastBlobName.lastIndexOf('/') + 1);
-        }
-
-        // Construct the imageURL for the employee
-        String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/" + lastBlobName;
-        employee.setImageURL(imageURL);
-
-        return employeeRepository.save(employee);
-    }
-
-    // Method to list blobs in the container
-    private List<String> listBlobs() {
-        return blobContainerClient.listBlobs().stream()
-                .map(blobItem -> blobItem.getName())
-                .collect(Collectors.toList());
-    }
-    private long getLastModifiedTimestamp(String blobName) {
-        BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
-        BlobProperties properties = blobClient.getProperties();
-        OffsetDateTime lastModified = properties.getLastModified();
-        return lastModified.toInstant().toEpochMilli();
-    }*/
 
     public void deleteEmployee(UUID id) {
         employeeRepository.deleteById(id);
@@ -117,49 +75,7 @@ public class EmployeeService {
 
         return employee.getSkills();
     }
-  /*  public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
-        Optional<Employee> existingEmployee = employeeRepository.findById(id);
 
-        if (existingEmployee.isPresent()) {
-            fields.forEach((key, value) -> {
-                if (key.equals("foreignLanguages") && value instanceof List) {
-                    List<Map<String, String>> updatedLanguages = (List<Map<String, String>>) value;
-                    for (Map<String, String> updatedLanguage : updatedLanguages) {
-                        String languageName = updatedLanguage.get("name");
-                        String languageLevel = updatedLanguage.get("level");
-                        Optional<ForeignLanguage> existingLanguage = existingEmployee.get().getForeignLanguages().stream()
-                                .filter(language -> language.getName().equals(languageName))
-                                .findFirst();
-                        if (existingLanguage.isPresent()) {
-                            existingLanguage.get().setLevel(languageLevel);
-                        } else {
-                            ForeignLanguage foreignLanguage = new ForeignLanguage();
-                            foreignLanguage.setName(languageName);
-                            foreignLanguage.setLevel(languageLevel);
-                            existingEmployee.get().getForeignLanguages().add(foreignLanguage);
-                        }
-                    }
-                } else {
-                    Field field = ReflectionUtils.findField(Employee.class, key);
-                    if (field != null) {
-                        field.setAccessible(true);
-                        try {
-                            if (field.getType() == LocalDate.class && value instanceof String) {
-                                LocalDate dateValue = LocalDate.parse((String) value);
-                                field.set(existingEmployee.get(), dateValue);
-                            } else {
-                                field.set(existingEmployee.get(), value);
-                            }
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
-            return employeeRepository.save(existingEmployee.get());
-        }
-        return null;
-    }*/
 
     public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
