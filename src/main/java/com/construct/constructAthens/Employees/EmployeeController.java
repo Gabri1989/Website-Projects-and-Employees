@@ -51,12 +51,12 @@ public class EmployeeController{
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-   /* @PostMapping("/createEmployee")
+    @PostMapping("/createEmployee")
     public Employee saveEmployee(@RequestBody Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
         return employeeService.saveEmployee(employee);
-    }*/
+    }
 
     @PutMapping("/edit/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
@@ -82,10 +82,10 @@ public class EmployeeController{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-   /* @GetMapping("/{employeeId}/skills")
+    @GetMapping("/{employeeId}/skills")
     public Collection<Skill> getSkillsByEmployeeId(@PathVariable UUID employeeId) {
         return employeeService.getSkillsByEmployeeId(employeeId);
-    }*/
+    }
    @PatchMapping("/{id}")
    public Employee updateEmployeeFields(@PathVariable UUID id, @RequestBody Map<String, Object> fields) {
        return employeeService.updateEmployeeByFields(id, fields);

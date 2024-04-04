@@ -4,6 +4,7 @@ import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.Employees.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +25,18 @@ import java.util.UUID;
 public class AzureController {
     @Autowired
     private StorageService azureBlobAdapter;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Value("${azure.storage.blob.endpoint}")
+    private String blobStorageEndpoint;
 
     @PostMapping(path="/createImage",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> upload
-            (@RequestParam MultipartFile file )
-            throws IOException {
+    public ResponseEntity<String> upload(@RequestParam MultipartFile file, @RequestParam UUID employeeId) throws IOException {
         String fileName = azureBlobAdapter.upload(file);
-        return ResponseEntity.ok(fileName);
+        String imageURL = blobStorageEndpoint + "/" + fileName;
+        employeeRepository.updateEmployeeImageURL(employeeId, imageURL);
+
+        return ResponseEntity.ok(imageURL);
     }
 
     @GetMapping("/getImages")

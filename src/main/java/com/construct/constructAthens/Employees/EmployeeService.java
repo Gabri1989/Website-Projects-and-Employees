@@ -39,13 +39,8 @@ import java.util.stream.Collectors;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository ;
-    @Value("${spring.cloud.azure.storage.blob.connection-string}")
-    private String azureStorageConnectionString;
-    @Autowired
-    private StorageService azureBlobAdapter;
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
-    @Autowired
-    private BlobContainerClient blobContainerClient;
+
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository)        {
         this.employeeRepository = employeeRepository;
@@ -97,20 +92,6 @@ public class EmployeeService {
                     case "weekSchedules":
                         updateWeekSchedules(existingEmployee.get(), (List<Map<String, String>>) value);
                         break;
-                    case "imageURL":
-                        List<String> blobNames = listBlobs();
-                        List<String> sortedBlobNames = blobNames.stream()
-                                .sorted(Comparator.comparing(this::getLastModifiedTimestamp).reversed())
-                                .toList();
-
-                        String lastBlobName = "";
-                        if (!sortedBlobNames.isEmpty()) {
-                            lastBlobName = sortedBlobNames.get(0);
-                            lastBlobName = lastBlobName.substring(lastBlobName.lastIndexOf('/') + 1);
-                        }
-                        String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/" + lastBlobName;
-                        existingEmployee.get().setImageURL(imageURL);
-                        break;
                     default:
                         handleEmployeeField(existingEmployee.get(), key, value);
                 }
@@ -119,17 +100,7 @@ public class EmployeeService {
         }
         return null;
     }
-    private List<String> listBlobs() {
-        return blobContainerClient.listBlobs().stream()
-                .map(BlobItem::getName)
-                .collect(Collectors.toList());
-    }
-    private long getLastModifiedTimestamp(String blobName) {
-        BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
-        BlobProperties properties = blobClient.getProperties();
-        OffsetDateTime lastModified = properties.getLastModified();
-        return lastModified.toInstant().toEpochMilli();
-    }
+
     private void updateForeignLanguages(Employee employee, List<Map<String, String>> updatedLanguages) {
         for (Map<String, String> updatedLanguage : updatedLanguages) {
             String languageName = updatedLanguage.get("name");
@@ -155,33 +126,29 @@ public class EmployeeService {
                     .filter(project -> project.getNameProject().equals(projectName))
                     .findFirst();
             if (existingProject.isPresent()) {
-                // Update existing project fields
                 updateProjectsEmployee(existingProject.get(), updatedProject);
             } else {
-                // Create new project
                 ProjectsEmployee newProject = new ProjectsEmployee();
                 updateProjectsEmployee(newProject, updatedProject);
-                // Add new project to employee
                 employee.getProjects().add(newProject);
             }
         }
     }
 
     private void updateProjectsEmployee(ProjectsEmployee project, Map<String, Object> updatedProject) {
-        // Fetch existing values
+
         String nameProject = project.getNameProject();
-        String statusProject = project.getStatusProject(); // Changed type to String
+        String statusProject = project.getStatusProject();
         int timpPerDate = project.getTimpPerDate();
         String role = project.getRole();
         String headOfSite = project.getHeadOfSite();
         ProjectsEmployee.MyContribution myContribution = project.getMyContribution();
 
-        // Update only the fields provided in the updatedProject map
         if (updatedProject.containsKey("nameProject")) {
             project.setNameProject((String) updatedProject.get("nameProject"));
         }
         if (updatedProject.containsKey("statusProject")) {
-            project.setStatusProject((String) updatedProject.get("statusProject")); // Changed type to String
+            project.setStatusProject((String) updatedProject.get("statusProject"));
         }
         if (updatedProject.containsKey("timpPerDate")) {
             project.setTimpPerDate((int) updatedProject.get("timpPerDate"));
@@ -192,7 +159,6 @@ public class EmployeeService {
         if (updatedProject.containsKey("headOfSite")) {
             project.setHeadOfSite((String) updatedProject.get("headOfSite"));
         }
-        // MyContribution handling
         if (updatedProject.containsKey("myContribution")) {
             Map<String, Object> myContributionMap = (Map<String, Object>) updatedProject.get("myContribution");
             ProjectsEmployee.MyContribution updatedMyContribution = new ProjectsEmployee.MyContribution();
@@ -212,7 +178,6 @@ public class EmployeeService {
             }
             project.setMyContribution(updatedMyContribution);
         }
-        // Restore existing values if not provided in the update request
         if (project.getNameProject() == null) {
             project.setNameProject(nameProject);
         }
@@ -228,7 +193,6 @@ public class EmployeeService {
         if (project.getHeadOfSite() == null) {
             project.setHeadOfSite(headOfSite);
         }
-        // Restore MyContribution if not provided in the update request
         if (project.getMyContribution() == null) {
             project.setMyContribution(myContribution);
         }
@@ -259,7 +223,7 @@ public class EmployeeService {
     private void updateWeekSchedules(Employee employee, List<Map<String, String>> updatedSchedules) {
         for (Map<String, String> updatedSchedule : updatedSchedules) {
             String dayString = updatedSchedule.get("day");
-            DayOfWeek day = DayOfWeek.valueOf(dayString.toUpperCase()); // Parse day string to DayOfWeek
+            DayOfWeek day = DayOfWeek.valueOf(dayString.toUpperCase());
 
             String startSchedule = updatedSchedule.get("startSchedule");
             String endSchedule = updatedSchedule.get("endSchedule");
@@ -294,34 +258,9 @@ public class EmployeeService {
                     field.set(employee, value);
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                logger.error("An error occurred:", e);
             }
         }
     }
 
-
-    /*public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
-        Optional<Employee> existingEmployee = employeeRepository.findById(id);
-
-        if (existingEmployee.isPresent()) {
-            fields.forEach((key, value) -> {
-                Field field = ReflectionUtils.findField(Employee.class, key);
-                if (field != null) {
-                    field.setAccessible(true);
-                    try {
-                        if (field.getType() == LocalDate.class && value instanceof String) {
-                            LocalDate dateValue = LocalDate.parse((String) value);
-                            field.set(existingEmployee.get(), dateValue);
-                        } else {
-                            field.set(existingEmployee.get(), value);
-                        }
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            return employeeRepository.save(existingEmployee.get());
-        }
-        return null;
-    }*/
 }

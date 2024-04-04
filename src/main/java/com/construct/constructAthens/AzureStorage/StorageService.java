@@ -27,16 +27,16 @@ public class StorageService {
     @Autowired
     BlobContainerClient blobContainerClient;
 
-        public String upload(MultipartFile multipartFile) throws IOException {
+    public String upload(MultipartFile multipartFile) throws IOException {
             String uniqueFilename = generateUniqueFilename(multipartFile.getOriginalFilename());
             BlobClient blob = blobContainerClient.getBlobClient(uniqueFilename);
             blob.upload(multipartFile.getInputStream(), multipartFile.getSize(), true);
             return uniqueFilename;
-        }
+    }
 
     private String generateUniqueFilename(String originalFilename) {
         String uuid = UUID.randomUUID().toString();
-       
+
         String extension = getFileExtension(originalFilename);
         return uuid+"."+extension;
     }

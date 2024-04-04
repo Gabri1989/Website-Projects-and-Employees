@@ -36,10 +36,6 @@ public class UserInfoService implements UserDetailsService {
     private PasswordEncoder encoder;
     @Autowired
     private EmployeeRepository employeeRepository;
-    @Autowired
-    private StorageService azureBlobAdapter;
-            @Autowired
-            private BlobContainerClient blobContainerClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -55,28 +51,15 @@ public class UserInfoService implements UserDetailsService {
             if (repository.existsByUsername(userInfo.getUsername())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
             }
-
             userInfo.setPassword(encoder.encode(userInfo.getPassword()));
             UUID userId = UUID.randomUUID();
             userInfo.setId(userId);
             UserInfo savedUser = repository.save(userInfo);
             UUID userid = savedUser.getId();
             String username = savedUser.getUsername();
-            List<String> blobNames = listBlobs();
-            List<String> sortedBlobNames = blobNames.stream()
-                    .sorted(Comparator.comparing(this::getLastModifiedTimestamp).reversed())
-                    .toList();
-
-            String lastBlobName = "";
-            if (!sortedBlobNames.isEmpty()) {
-                lastBlobName = sortedBlobNames.get(0);
-                lastBlobName = lastBlobName.substring(lastBlobName.lastIndexOf('/') + 1);
-            }
-            String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/" + lastBlobName;
             Employee employee = new Employee();
             employee.setId(userid);
             employee.setUsername(username);
-            employee.setImageURL(imageURL);
             employeeRepository.save(employee);
             return ResponseEntity.ok("User Added Successfully");
         } catch (Exception e) {
@@ -84,19 +67,6 @@ public class UserInfoService implements UserDetailsService {
         }
 
     }
-    private List<String> listBlobs() {
-        return blobContainerClient.listBlobs().stream()
-                .map(BlobItem::getName)
-                .collect(Collectors.toList());
-    }
-    private long getLastModifiedTimestamp(String blobName) {
-        BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
-        BlobProperties properties = blobClient.getProperties();
-        OffsetDateTime lastModified = properties.getLastModified();
-        return lastModified.toInstant().toEpochMilli();
-    }
-
-
 
 
     public Optional<UserInfo> getUserById(UUID id) {
