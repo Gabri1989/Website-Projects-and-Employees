@@ -1,5 +1,6 @@
 package com.construct.constructAthens.Employees;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -41,9 +42,10 @@ public class EmployeeService {
     @Value("${spring.cloud.azure.storage.blob.connection-string}")
     private String azureStorageConnectionString;
     @Autowired
+    private StorageService azureBlobAdapter;
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+    @Autowired
     private BlobContainerClient blobContainerClient;
-
-
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository)        {
         this.employeeRepository = employeeRepository;
@@ -95,6 +97,20 @@ public class EmployeeService {
                     case "weekSchedules":
                         updateWeekSchedules(existingEmployee.get(), (List<Map<String, String>>) value);
                         break;
+                    case "imageURL":
+                        List<String> blobNames = listBlobs();
+                        List<String> sortedBlobNames = blobNames.stream()
+                                .sorted(Comparator.comparing(this::getLastModifiedTimestamp).reversed())
+                                .toList();
+
+                        String lastBlobName = "";
+                        if (!sortedBlobNames.isEmpty()) {
+                            lastBlobName = sortedBlobNames.get(0);
+                            lastBlobName = lastBlobName.substring(lastBlobName.lastIndexOf('/') + 1);
+                        }
+                        String imageURL = "https://ipstorage1989.blob.core.windows.net/atenacontainer/" + lastBlobName;
+                        existingEmployee.get().setImageURL(imageURL);
+                        break;
                     default:
                         handleEmployeeField(existingEmployee.get(), key, value);
                 }
@@ -103,7 +119,17 @@ public class EmployeeService {
         }
         return null;
     }
-
+    private List<String> listBlobs() {
+        return blobContainerClient.listBlobs().stream()
+                .map(BlobItem::getName)
+                .collect(Collectors.toList());
+    }
+    private long getLastModifiedTimestamp(String blobName) {
+        BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
+        BlobProperties properties = blobClient.getProperties();
+        OffsetDateTime lastModified = properties.getLastModified();
+        return lastModified.toInstant().toEpochMilli();
+    }
     private void updateForeignLanguages(Employee employee, List<Map<String, String>> updatedLanguages) {
         for (Map<String, String> updatedLanguage : updatedLanguages) {
             String languageName = updatedLanguage.get("name");

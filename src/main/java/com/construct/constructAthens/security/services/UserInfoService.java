@@ -2,6 +2,7 @@ package com.construct.constructAthens.security.services;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobProperties;
 import com.construct.constructAthens.AzureStorage.StorageService;
 import com.construct.constructAthens.Employees.Employee;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,8 +38,8 @@ public class UserInfoService implements UserDetailsService {
     private EmployeeRepository employeeRepository;
     @Autowired
     private StorageService azureBlobAdapter;
-    @Autowired
-    private BlobContainerClient blobContainerClient;
+            @Autowired
+            private BlobContainerClient blobContainerClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -46,6 +48,7 @@ public class UserInfoService implements UserDetailsService {
         return userDetail.map(UserInfoDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }
+
 
     public ResponseEntity<String> addUser(UserInfo userInfo) {
         try {
@@ -60,10 +63,9 @@ public class UserInfoService implements UserDetailsService {
             UUID userid = savedUser.getId();
             String username = savedUser.getUsername();
             List<String> blobNames = listBlobs();
-
             List<String> sortedBlobNames = blobNames.stream()
                     .sorted(Comparator.comparing(this::getLastModifiedTimestamp).reversed())
-                    .collect(Collectors.toList());
+                    .toList();
 
             String lastBlobName = "";
             if (!sortedBlobNames.isEmpty()) {
@@ -84,7 +86,7 @@ public class UserInfoService implements UserDetailsService {
     }
     private List<String> listBlobs() {
         return blobContainerClient.listBlobs().stream()
-                .map(blobItem -> blobItem.getName())
+                .map(BlobItem::getName)
                 .collect(Collectors.toList());
     }
     private long getLastModifiedTimestamp(String blobName) {
@@ -93,6 +95,9 @@ public class UserInfoService implements UserDetailsService {
         OffsetDateTime lastModified = properties.getLastModified();
         return lastModified.toInstant().toEpochMilli();
     }
+
+
+
 
     public Optional<UserInfo> getUserById(UUID id) {
         return repository.findById(id);

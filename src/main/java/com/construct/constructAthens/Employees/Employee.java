@@ -43,7 +43,6 @@ public class Employee  {
     private String fullname;
     private String imageURL;
     private String email;
-
     private String number;
     private String adress;
     private String CNP;

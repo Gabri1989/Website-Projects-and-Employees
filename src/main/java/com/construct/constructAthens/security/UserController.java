@@ -1,5 +1,6 @@
 package com.construct.constructAthens.security;
 
+import com.construct.constructAthens.AzureStorage.StorageService;
 import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeService;
 import com.construct.constructAthens.security.entity.AuthRequest;
@@ -9,6 +10,7 @@ import com.construct.constructAthens.security.services.JwtService;
 import com.construct.constructAthens.security.services.UserInfoService;
 import com.construct.constructAthens.security.services.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +38,8 @@ public class UserController {
     private EmployeeService empService;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private StorageService azureBlobAdapter;
     @GetMapping("/getAll")
     public ResponseEntity<Object> getAllUsers() {
         List<UserInfoDto> usersDTO = service.getAllUsersDTO();
@@ -44,6 +49,9 @@ public class UserController {
     public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo) {
         return service.addUser(userInfo);
     }
+
+
+
     @PostMapping("/generateToken")
     public ResponseEntity<Object> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         try {
