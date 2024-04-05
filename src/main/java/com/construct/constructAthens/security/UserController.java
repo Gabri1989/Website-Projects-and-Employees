@@ -40,10 +40,9 @@ public class UserController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private StorageService azureBlobAdapter;
-    @GetMapping("/getAll")
-    public ResponseEntity<Object> getAllUsers() {
-        List<UserInfoDto> usersDTO = service.getAllUsersDTO();
-        return ResponseEntity.ok(usersDTO);
+    @GetMapping("/getAllUsers")
+    public List<UserInfoDto> getAllUsersDTO() {
+        return service.getAllUsersDTO();
     }
     @PostMapping("/addNewUser")
     public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo) {

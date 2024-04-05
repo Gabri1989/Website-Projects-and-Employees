@@ -12,13 +12,11 @@ public interface ProjectsRepository  extends JpaRepository<Projects, UUID> {
         Employee employee = employeeRepository.findById(id).orElse(null);
         if (employee != null) {
             for (ProjectsEmployee projectsEmployee : employee.getProjects()) {
-                // Check if the element is of type ProjectsEmployee
                 if (projectsEmployee != null) {
-                    // Perform any additional checks if needed
                     return projectsEmployee;
                 }
             }
         }
-        return null; // Employee not found or no ProjectsEmployee found
+        return null;
     }
 }

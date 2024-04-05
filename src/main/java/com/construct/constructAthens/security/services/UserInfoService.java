@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,6 +61,8 @@ public class UserInfoService implements UserDetailsService {
             Employee employee = new Employee();
             employee.setId(userid);
             employee.setUsername(username);
+            LocalDate dataDemo=LocalDate.now();
+            employee.setEmploymentDate(dataDemo.toString());
             employeeRepository.save(employee);
             return ResponseEntity.ok("User Added Successfully");
         } catch (Exception e) {
@@ -67,7 +70,6 @@ public class UserInfoService implements UserDetailsService {
         }
 
     }
-
 
     public Optional<UserInfo> getUserById(UUID id) {
         return repository.findById(id);
@@ -81,8 +83,9 @@ public class UserInfoService implements UserDetailsService {
         repository.deleteById(id);
         employeeRepository.deleteById(id);
     }
-    public List<UserInfoDto> getAllUsersDTO() {
+ /*   public List<UserInfoDto> getAllUsersDTO() {
         List<UserInfo> users = repository.findAll();
+        List<Employee> employees=employeeRepository.findAll();
         return users.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -93,6 +96,27 @@ public class UserInfoService implements UserDetailsService {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setRoles(user.getRoles());
+        return dto;
+    }*/
+ public List<UserInfoDto> getAllUsersDTO() {
+     List<UserInfo> users = repository.findAll();
+     List<Employee> employees = employeeRepository.findAll();
+
+     // Convert Employee list to Map for faster lookup
+     Map<UUID, String> employmentDateMap = employees.stream()
+             .filter(employee -> employee.getEmploymentDate() != null) // Filter out null employment dates
+             .collect(Collectors.toMap(Employee::getId, Employee::getEmploymentDate));
+
+     return users.stream()
+             .map(user -> convertToDto(user, employmentDateMap.getOrDefault(user.getId(), "Unknown")))
+             .collect(Collectors.toList());
+ }
+
+    private UserInfoDto convertToDto(UserInfo user, String employmentDate) {
+        UserInfoDto dto = new UserInfoDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmployment_date(employmentDate);
         return dto;
     }
 
