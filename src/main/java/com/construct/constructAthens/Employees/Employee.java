@@ -46,8 +46,8 @@ public class Employee  {
     private String number;
     private String adress;
     private String CNP;
-    private LocalDate employmentDate;
-    private LocalDate birthday;
+    private String employmentDate;
+    private String birthday;
     private String nationality;
     private int kids;
     private String emergencyContact;
