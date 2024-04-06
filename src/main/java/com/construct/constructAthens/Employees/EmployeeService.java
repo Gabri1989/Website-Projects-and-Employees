@@ -66,6 +66,7 @@ public class EmployeeService {
     public void deleteEmployee(UUID id) {
         employeeRepository.deleteById(id);
     }
+
     public Collection<Skill> getSkillsByEmployeeId(UUID employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + employeeId));

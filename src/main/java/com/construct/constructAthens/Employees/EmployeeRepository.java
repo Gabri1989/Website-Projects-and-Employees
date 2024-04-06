@@ -1,6 +1,7 @@
 package com.construct.constructAthens.Employees;
 
 import com.construct.constructAthens.Employees.Employee_dependencies.ProjectsEmployee;
+import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Employee findEmployeeByUsername (String username);
     Optional<Employee> findById(UUID id);
+
     Employee findEmployeeById(UUID id);
     Employee getEmployeesByEmploymentDate(String date);
     @Modifying

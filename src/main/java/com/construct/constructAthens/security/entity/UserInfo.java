@@ -17,7 +17,8 @@ public class UserInfo {
 
     @Id
     private UUID id;
-
+    @JsonIgnore
+    private String date_account_created;
     private String username;
     private String password;
     private String roles;

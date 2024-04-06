@@ -6,6 +6,7 @@ import com.construct.constructAthens.AzureStorage.StorageService;
 
 import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -86,6 +87,19 @@ public class EmployeeController{
     public Collection<Skill> getSkillsByEmployeeId(@PathVariable UUID employeeId) {
         return employeeService.getSkillsByEmployeeId(employeeId);
     }
+    @DeleteMapping("/employees/{employeeId}/skills/{skillName}")
+    public void deleteSkillBySkillName(@PathVariable UUID employeeId, @PathVariable String skillName) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + employeeId));
+
+        boolean removed = employee.getSkills().removeIf(skill -> skill.getSkillName().equals(skillName));
+
+        if (!removed) {
+            throw new EntityNotFoundException("Skill not found with name: " + skillName);
+        }
+        employeeRepository.save(employee);
+    }
+
    @PatchMapping("/{id}")
    public Employee updateEmployeeFields(@PathVariable UUID id, @RequestBody Map<String, Object> fields) {
        return employeeService.updateEmployeeByFields(id, fields);
