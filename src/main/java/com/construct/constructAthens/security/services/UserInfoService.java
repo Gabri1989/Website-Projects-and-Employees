@@ -99,6 +99,7 @@ public class UserInfoService implements UserDetailsService {
         UserInfoDto dto = new UserInfoDto();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
+        dto.setRoles(user.getRoles());
         dto.setDate_account_created(user.getDate_account_created());
         return dto;
     }

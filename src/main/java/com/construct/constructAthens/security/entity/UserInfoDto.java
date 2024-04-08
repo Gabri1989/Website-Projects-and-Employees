@@ -13,6 +13,6 @@ public class UserInfoDto {
     private UUID id;
     private String username;
    // private String password;
-    //private String roles;
+    private String roles;
    private String date_account_created;
 }
