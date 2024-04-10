@@ -1,13 +1,12 @@
 package com.construct.constructAthens.Projects;
 
-import com.construct.constructAthens.Employees.Employee;
+import com.construct.constructAthens.Employees.Employee_dependencies.ProjectsEmployee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 @AllArgsConstructor
@@ -19,21 +18,23 @@ public class Projects {
     private UUID projectId;
     private String nameProject;
     private String headOfSite;
-    private LocalDate startData;
+    private String startData;
 
-    private LocalDate endData;
+    private String endData;
     private double Latitude;
     private double Longitude;
     private double radius;
-    @Enumerated(EnumType.STRING)
-    private ProjectStatus statusProject;
+
+    private String statusProject;
     @ElementCollection
     @CollectionTable(name = "employees_for_project", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "fullname")
-    private List<String> employeeNames;
-    public enum ProjectStatus {
-        ON_GOING,
-        FINISHED
-    }
+    @AttributeOverride(name = "employeeDetails", column = @Column(name = "employee_details"))
+    private List<ProjectEmployees> projectEmployees;
+
+    @ElementCollection
+    @CollectionTable(name = "headsite_for_project", joinColumns = @JoinColumn(name = "project_id"))
+    @AttributeOverride(name = "headSiteDetails", column = @Column(name = "head_site_details"))
+    private List<ProjectHeadSite> projectHeadSites;
+
 }
 

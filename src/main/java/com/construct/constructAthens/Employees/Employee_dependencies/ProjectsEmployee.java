@@ -20,9 +20,7 @@ public class ProjectsEmployee {
     private String role;
     private String headOfSite;
     private MyContribution myContribution;
-   /* @ManyToOne
-    @JoinColumn(name = "projectId")
-    private Projects project;*/
+
 
 
     @Override
@@ -46,10 +44,10 @@ public class ProjectsEmployee {
 
     @Embeddable
     public static class MyContribution {
-        private LocalDate startDataContribution;
-        private LocalDate endDataContribution;
+        private String startDataContribution;
+        private String endDataContribution;
 
-        public MyContribution(LocalDate startDataContribution, LocalDate endDataContribution) {
+        public MyContribution(String startDataContribution, String endDataContribution) {
             this.startDataContribution = startDataContribution;
             this.endDataContribution = endDataContribution;
         }
@@ -57,19 +55,19 @@ public class ProjectsEmployee {
         public MyContribution() {
         }
 
-        public LocalDate getStartDataContribution() {
+        public String getStartDataContribution() {
             return startDataContribution;
         }
 
-        public void setStartDataContribution(LocalDate startDataContribution) {
+        public void setStartDataContribution(String startDataContribution) {
             this.startDataContribution = startDataContribution;
         }
 
-        public LocalDate getEndDataContribution() {
+        public String getEndDataContribution() {
             return endDataContribution;
         }
 
-        public void setEndDataContribution(LocalDate endDataContribution) {
+        public void setEndDataContribution(String endDataContribution) {
             this.endDataContribution = endDataContribution;
         }
 

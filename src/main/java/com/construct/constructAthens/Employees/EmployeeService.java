@@ -84,9 +84,9 @@ public class EmployeeService {
                     case "foreignLanguages":
                         updateForeignLanguages(existingEmployee.get(), (List<Map<String, String>>) value);
                         break;
-                    case "projects":
+                   /* case "projects":
                         updateProjects(existingEmployee.get(), (List<Map<String, Object>>) value);
-                        break;
+                        break;*/
                     case "skills":
                         updateSkills(existingEmployee.get(), (List<Map<String, String>>) value);
                         break;
@@ -120,7 +120,7 @@ public class EmployeeService {
         }
     }
 
-    private void updateProjects(Employee employee, List<Map<String, Object>> updatedProjects) {
+    /*private void updateProjects(Employee employee, List<Map<String, Object>> updatedProjects) {
         for (Map<String, Object> updatedProject : updatedProjects) {
             String projectName = (String) updatedProject.get("nameProject");
             Optional<ProjectsEmployee> existingProject = employee.getProjects().stream()
@@ -197,7 +197,7 @@ public class EmployeeService {
         if (project.getMyContribution() == null) {
             project.setMyContribution(myContribution);
         }
-    }
+    }*/
 
 
 

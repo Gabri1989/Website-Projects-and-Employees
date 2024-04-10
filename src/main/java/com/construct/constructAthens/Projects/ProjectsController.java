@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -44,5 +45,15 @@ public class ProjectsController {
     public ResponseEntity<Void> deleteProject(@PathVariable UUID projectId) {
         projectsService.deleteProject(projectId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @PatchMapping("/projects/{projectId}")
+    public ResponseEntity<Projects> updateProjectByFields(@PathVariable("projectId") UUID projectId, @RequestBody Map<String, Object> fields) {
+        Projects updatedProject = projectsService.updateProjectByFields(projectId, fields);
+
+        if (updatedProject != null) {
+            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
