@@ -22,6 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/files")
+@CrossOrigin(origins = "*")
 public class AzureController {
     @Autowired
     private StorageService azureBlobAdapter;

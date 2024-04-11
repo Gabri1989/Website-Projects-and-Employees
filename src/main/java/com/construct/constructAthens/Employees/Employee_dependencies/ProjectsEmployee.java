@@ -18,7 +18,9 @@ public class ProjectsEmployee {
     private String statusProject;
     private int timpPerDate;
     private String role;
+    @Column(columnDefinition = "varchar")
     private String headOfSite;
+
     private MyContribution myContribution;
 
 

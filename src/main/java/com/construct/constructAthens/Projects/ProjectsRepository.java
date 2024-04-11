@@ -9,16 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectsRepository  extends JpaRepository<Projects, UUID> {
-    default ProjectsEmployee findByEmployeeId(UUID id, EmployeeRepository employeeRepository) {
-        Employee employee = employeeRepository.findById(id).orElse(null);
-        if (employee != null) {
-            for (ProjectsEmployee projectsEmployee : employee.getProjects()) {
-                if (projectsEmployee != null) {
-                    return projectsEmployee;
-                }
-            }
-        }
-        return null;
-    }
+
     Optional<Projects> findByProjectId(UUID id);
 }

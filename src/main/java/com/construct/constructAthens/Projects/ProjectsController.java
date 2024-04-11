@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/projects")
+@CrossOrigin(origins = "*")
 public class ProjectsController {
     private final ProjectsService projectsService;
 
@@ -35,12 +36,17 @@ public class ProjectsController {
         }
     }
 
-    @PostMapping
+   /* @PostMapping
     public ResponseEntity<Projects> createProject(@RequestBody Projects project) {
         Projects savedProject = projectsService.saveProject(project);
         return new ResponseEntity<>(savedProject, HttpStatus.CREATED);
-    }
+    }*/
+   @PostMapping
+   public ResponseEntity<Projects> createProjectWithEmployee(@RequestBody Projects project) {
+       Projects savedProject = projectsService.createProjectWithEmployee(project);
 
+       return ResponseEntity.ok(savedProject);
+   }
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(@PathVariable UUID projectId) {
         projectsService.deleteProject(projectId);

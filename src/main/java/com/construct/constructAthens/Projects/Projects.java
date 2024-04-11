@@ -17,7 +17,7 @@ public class Projects {
     @Id
     private UUID projectId;
     private String nameProject;
-    private String headOfSite;
+
     private String startData;
 
     private String endData;
