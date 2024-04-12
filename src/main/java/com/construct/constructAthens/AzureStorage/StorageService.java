@@ -1,9 +1,5 @@
 package com.construct.constructAthens.AzureStorage;
 
-import com.azure.core.util.BinaryData;
-import com.construct.constructAthens.Employees.Employee;
-import com.construct.constructAthens.Employees.EmployeeRepository;
-import com.construct.constructAthens.Employees.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.azure.core.http.rest.PagedIterable;
@@ -11,11 +7,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 @Component

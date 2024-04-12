@@ -132,14 +132,22 @@ public class ProjectsService {
                 employeeRepository.save(employee);
             }
 
-            // Update project name in embedded ProjectHeadSite
+
             List<ProjectHeadSite> projectHeadSites = existingProject.getProjectHeadSites();
             for (ProjectHeadSite headSite : projectHeadSites) {
-                headSite.setFullName(existingProject.getNameProject());
-                // Update other fields if needed
+                // Check if the field needs to be updated
+                if (fields.containsKey("fullName")) {
+                    headSite.setFullName((String) fields.get("fullName"));
+                }
+                if (fields.containsKey("startDate")) {
+                    headSite.setStartDate((String) fields.get("startDate"));
+                }
+                if (fields.containsKey("endDate")) {
+                    headSite.setEndDate((String) fields.get("endDate"));
+                }
+                projectsRepository.save(existingProject);
             }
 
-            // Save changes
             projectsRepository.save(existingProject);
             return existingProject;
         }
