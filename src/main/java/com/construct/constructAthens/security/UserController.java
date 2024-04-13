@@ -65,7 +65,6 @@ public class UserController {
                 throw new BadCredentialsException("Invalid credentials");
             }
         } catch (BadCredentialsException e) {
-            // This will be caught by the CustomExceptionHandler
             throw e;
         }
     }

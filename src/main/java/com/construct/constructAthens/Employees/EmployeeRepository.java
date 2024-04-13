@@ -19,7 +19,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Employee findEmployeeByUsername (String username);
     Optional<Employee> findById(UUID id);
     Employee findEmployeeByFullname(String name);
-    Employee findEmployeeById(UUID id);
+
     Employee getEmployeesByEmploymentDate(String date);
     @Modifying
     @Transactional

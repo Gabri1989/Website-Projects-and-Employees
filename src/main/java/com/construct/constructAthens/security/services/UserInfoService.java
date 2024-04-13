@@ -77,30 +77,37 @@ public class UserInfoService implements UserDetailsService {
         return repository.findById(id);
     }
 
-    public List<UserInfo> getAllUsers() {
-        return repository.findAll();
-    }
-
     public void deleteUserById(UUID id) {
         repository.deleteById(id);
         employeeRepository.deleteById(id);
     }
-   public List<UserInfoDto> getAllUsersDTO() {
+    public List<UserInfoDto> getAllUsersDTO() {
         List<UserInfo> users = repository.findAll();
-        return users.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        List<Employee> employees = employeeRepository.findAll();
+
+        List<UserInfoDto> dtos = new ArrayList<>();
+        for (UserInfo userInfo : users) {
+            Employee employee = employees.stream()
+                    .filter(emp -> emp.getId().equals(userInfo.getId()))
+                    .findFirst()
+                    .orElse(null);
+            UserInfoDto dto = convertToDto(userInfo, employee);
+            dtos.add(dto);
+        }
+
+        return dtos;
     }
 
-
-
-
-    private UserInfoDto convertToDto(UserInfo user) {
+    private UserInfoDto convertToDto(UserInfo user,Employee employee) {
         UserInfoDto dto = new UserInfoDto();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setRoles(user.getRoles());
         dto.setDate_account_created(user.getDate_account_created());
+
+        if (employee != null) {
+            dto.setImageURL(employee.getImageURL());
+        }
         return dto;
     }
 
