@@ -42,20 +42,19 @@ public class ProjectsService {
         project.setProjectId(UUID.randomUUID());
         List<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
         for (ProjectEmployees projectEmployees : projectEmployeesList) {
-            Employee employee = employeeRepository.findEmployeeByFullname(projectEmployees.getEmployeeName());
+            Employee employee = employeeRepository.findEmployeeById(projectEmployees.getEmployeeId());
             if (employee != null) {
                 ProjectsEmployee projectsEmployee = new ProjectsEmployee();
                 projectsEmployee.setNameProject(project.getNameProject());
                 projectsEmployee.setStatusProject(project.getStatusProject());
 
-                List<String> headOfSiteNames = new ArrayList<>();
+                List<String> headOfSiteIds = new ArrayList<>();
                 for (ProjectHeadSite headSite : project.getProjectHeadSites()) {
-                    headOfSiteNames.add(headSite.getFullName());
+                    headOfSiteIds.add(headSite.getHeadSiteId().toString());
                 }
-                String headOfSiteJson = String.join(", ", headOfSiteNames);
+                String headOfSiteJson = String.join(", ", headOfSiteIds);
+
                 projectsEmployee.setHeadOfSite(headOfSiteJson);
-
-
                 projectsEmployee.setMyContribution(new ProjectsEmployee.MyContribution(projectEmployees.getStartDate(), projectEmployees.getEndDate()));
 
                 employee.getProjects().add(projectsEmployee);
@@ -64,6 +63,7 @@ public class ProjectsService {
         }
         return projectsRepository.saveAndFlush(project);
     }
+
 
     public void deleteProject(UUID projectId) {
         Projects project = projectsRepository.findById(projectId).orElse(null);
@@ -76,7 +76,6 @@ public class ProjectsService {
             employee.getProjects().removeIf(projectsEmployee -> projectsEmployee.getNameProject().equals(project.getNameProject()));
             employeeRepository.save(employee);
         }
-
         project.setProjectHeadSites(new ArrayList<>());
         project.setProjectEmployees(new ArrayList<>());
         projectsRepository.save(project);
@@ -106,39 +105,26 @@ public class ProjectsService {
         if (existingProjectOptional.isPresent()) {
             Projects existingProject = existingProjectOptional.get();
             String projectName = existingProject.getNameProject();
+            String projectStatus= existingProject.getStatusProject();
             fields.forEach((key, value) -> {
                 handleProjectField(existingProject, key, value);
             });
 
-         /*   // Propagate changes to associated tables
-            List<ProjectEmployees> projectEmployees = existingProject.getProjectEmployees();
-            for (ProjectEmployees employee : projectEmployees) {
-                // Update project name in embedded ProjectsEmployee
-                if (employee.getNameProject().equals(projectName)) {
-                    employee.setNameProject(existingProject.getNameProject());
-                    // Update other fields if needed
-                }
-            }*/
-
-            // Update project name in embedded ProjectsEmployee within Employee
             List<Employee> employees = employeeRepository.findAll();
             for (Employee employee : employees) {
                 for (ProjectsEmployee employeeProject : employee.getProjects()) {
                     if (employeeProject.getNameProject().equals(projectName)) {
                         employeeProject.setNameProject(existingProject.getNameProject());
-                        // Update other fields if needed
+                    } else if (employeeProject.getStatusProject().equals(projectStatus)) {
+                        employeeProject.setStatusProject(existingProject.getStatusProject());
                     }
-                }
+                } //ramane de completat
                 employeeRepository.save(employee);
             }
 
-
             List<ProjectHeadSite> projectHeadSites = existingProject.getProjectHeadSites();
             for (ProjectHeadSite headSite : projectHeadSites) {
-                // Check if the field needs to be updated
-                if (fields.containsKey("fullName")) {
-                    headSite.setFullName((String) fields.get("fullName"));
-                }
+
                 if (fields.containsKey("startDate")) {
                     headSite.setStartDate((String) fields.get("startDate"));
                 }
@@ -154,21 +140,4 @@ public class ProjectsService {
 
         return null;
     }
-
-
-  /*  public Projects updateProjectByFields(UUID projectId, Map<String, Object> fields) {
-        Optional<Projects> existingProject = projectsRepository.findById(projectId);
-
-        if (existingProject.isPresent()) {
-            fields.forEach((key, value) -> {
-                handleProjectField(existingProject.get(), key, value);
-            });
-
-            return projectsRepository.save(existingProject.get());
-        }
-
-        return null;
-    }*/
-
-
 }

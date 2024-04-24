@@ -6,13 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Embeddable
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProjectHeadSite {
-    @Column(name = "fullname")
-    private String fullName;
+    @Column(name = "headsite_id")
+    private UUID headSiteId;
 
     @Column(name = "start_date")
     private String startDate;

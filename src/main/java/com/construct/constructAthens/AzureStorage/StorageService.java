@@ -8,7 +8,10 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 
 @Component
@@ -26,6 +29,7 @@ public class StorageService {
             blob.upload(multipartFile.getInputStream(), multipartFile.getSize(), true);
             return uniqueFilename;
     }
+
 
     private String generateUniqueFilename(String originalFilename) {
         String uuid = UUID.randomUUID().toString();
@@ -57,6 +61,16 @@ public class StorageService {
         BlobClient blob = blobContainerClient.getBlobClient(blobName);
         blob.delete();
         return true;
+    }
+    public byte[] getFile(String fileName)
+            throws URISyntaxException {
+
+        BlobClient blob = blobContainerClient.getBlobClient(fileName);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        blob.download(outputStream);
+        final byte[] bytes = outputStream.toByteArray();
+        return bytes;
+
     }
 
 }

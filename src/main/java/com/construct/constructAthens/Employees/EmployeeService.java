@@ -85,9 +85,9 @@ public class EmployeeService {
                     case "foreignLanguages":
                         updateForeignLanguages(existingEmployee.get(), (List<Map<String, String>>) value);
                         break;
-                   /* case "projects":
+                    case "projects":
                         updateProjects(existingEmployee.get(), (List<Map<String, Object>>) value);
-                        break;*/
+                        break;
                     case "skills":
                         updateSkills(existingEmployee.get(), (List<Map<String, String>>) value);
                         break;
@@ -121,7 +121,7 @@ public class EmployeeService {
         }
     }
 
-    /*private void updateProjects(Employee employee, List<Map<String, Object>> updatedProjects) {
+    private void updateProjects(Employee employee, List<Map<String, Object>> updatedProjects) {
         for (Map<String, Object> updatedProject : updatedProjects) {
             String projectName = (String) updatedProject.get("nameProject");
             Optional<ProjectsEmployee> existingProject = employee.getProjects().stream()
@@ -138,53 +138,14 @@ public class EmployeeService {
     }
 
     private void updateProjectsEmployee(ProjectsEmployee project, Map<String, Object> updatedProject) {
-
-        String nameProject = project.getNameProject();
-        String statusProject = project.getStatusProject();
         int timpPerDate = project.getTimpPerDate();
         String role = project.getRole();
-        String headOfSite = project.getHeadOfSite();
-        ProjectsEmployee.MyContribution myContribution = project.getMyContribution();
 
-        if (updatedProject.containsKey("nameProject")) {
-            project.setNameProject((String) updatedProject.get("nameProject"));
-        }
-        if (updatedProject.containsKey("statusProject")) {
-            project.setStatusProject((String) updatedProject.get("statusProject"));
-        }
         if (updatedProject.containsKey("timpPerDate")) {
             project.setTimpPerDate((int) updatedProject.get("timpPerDate"));
         }
         if (updatedProject.containsKey("role")) {
             project.setRole((String) updatedProject.get("role"));
-        }
-        if (updatedProject.containsKey("headOfSite")) {
-            project.setHeadOfSite((String) updatedProject.get("headOfSite"));
-        }
-        if (updatedProject.containsKey("myContribution")) {
-            Map<String, Object> myContributionMap = (Map<String, Object>) updatedProject.get("myContribution");
-            ProjectsEmployee.MyContribution updatedMyContribution = new ProjectsEmployee.MyContribution();
-            if (myContributionMap.containsKey("startDataContribution")) {
-                String startDataContributionStr = (String) myContributionMap.get("startDataContribution");
-                LocalDate startDataContribution = LocalDate.parse(startDataContributionStr);
-                updatedMyContribution.setStartDataContribution(startDataContribution);
-            } else {
-                updatedMyContribution.setStartDataContribution(myContribution.getStartDataContribution());
-            }
-            if (myContributionMap.containsKey("endDataContribution")) {
-                String endDataContributionStr = (String) myContributionMap.get("endDataContribution");
-                LocalDate endDataContribution = LocalDate.parse(endDataContributionStr);
-                updatedMyContribution.setEndDataContribution(endDataContribution);
-            } else {
-                updatedMyContribution.setEndDataContribution(myContribution.getEndDataContribution());
-            }
-            project.setMyContribution(updatedMyContribution);
-        }
-        if (project.getNameProject() == null) {
-            project.setNameProject(nameProject);
-        }
-        if (project.getStatusProject() == null) {
-            project.setStatusProject(statusProject);
         }
         if (project.getTimpPerDate() == 0) {
             project.setTimpPerDate(timpPerDate);
@@ -192,13 +153,7 @@ public class EmployeeService {
         if (project.getRole() == null) {
             project.setRole(role);
         }
-        if (project.getHeadOfSite() == null) {
-            project.setHeadOfSite(headOfSite);
-        }
-        if (project.getMyContribution() == null) {
-            project.setMyContribution(myContribution);
-        }
-    }*/
+    }
 
 
 

@@ -55,6 +55,8 @@ public class Employee  {
     private String education;
     private double timegps;
     private String motherLanguage;
+    private String cvURL;
+    private String signatureURL;
     public Employee() {
         this.id = UUID.randomUUID();
     }
@@ -67,12 +69,30 @@ public class Employee  {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
-        return kids == employee.kids && Double.compare(timegps, employee.timegps) == 0 && Objects.equals(id, employee.id) && Objects.equals(username, employee.username) && Objects.equals(fullname, employee.fullname) && Objects.equals(imageURL, employee.imageURL) && Objects.equals(email, employee.email) && Objects.equals(number, employee.number) && Objects.equals(adress, employee.adress) && Objects.equals(cnp, employee.cnp) && Objects.equals(employmentDate, employee.employmentDate) && Objects.equals(birthday, employee.birthday) && Objects.equals(nationality, employee.nationality) && Objects.equals(emergencyContact, employee.emergencyContact) && Objects.equals(emergencyPhone, employee.emergencyPhone) && Objects.equals(education, employee.education) && Objects.equals(motherLanguage, employee.motherLanguage);
+        return    kids == employee.kids
+                && Double.compare(timegps, employee.timegps) == 0
+                && Objects.equals(id, employee.id)
+                && Objects.equals(username, employee.username)
+                && Objects.equals(fullname, employee.fullname)
+                && Objects.equals(imageURL, employee.imageURL)
+                && Objects.equals(email, employee.email)
+                && Objects.equals(number, employee.number)
+                && Objects.equals(adress, employee.adress)
+                && Objects.equals(cnp, employee.cnp)
+                && Objects.equals(employmentDate, employee.employmentDate)
+                && Objects.equals(birthday, employee.birthday)
+                && Objects.equals(nationality, employee.nationality)
+                && Objects.equals(emergencyContact, employee.emergencyContact)
+                && Objects.equals(emergencyPhone, employee.emergencyPhone)
+                && Objects.equals(education, employee.education)
+                && Objects.equals(motherLanguage, employee.motherLanguage)
+                && Objects.equals(cvURL,employee.cvURL)
+                && Objects.equals(signatureURL,employee.signatureURL);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage);
+        return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage,cvURL,signatureURL);
     }
 }
 

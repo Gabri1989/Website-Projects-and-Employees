@@ -17,9 +17,7 @@ public class Projects {
     @Id
     private UUID projectId;
     private String nameProject;
-
     private String startData;
-
     private String endData;
     private double Latitude;
     private double Longitude;
