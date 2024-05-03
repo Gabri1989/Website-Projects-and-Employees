@@ -55,11 +55,9 @@ public class ProjectsController {
     @PatchMapping("/projects/{projectId}")
     public ResponseEntity<Projects> updateProjectByFields(@PathVariable("projectId") UUID projectId, @RequestBody Map<String, Object> fields) {
         Projects updatedProject = projectsService.updateProjectByFields(projectId, fields);
-
         if (updatedProject != null) {
             return new ResponseEntity<>(updatedProject, HttpStatus.OK);
         }
-
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

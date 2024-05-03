@@ -95,4 +95,3 @@ public class Employee  {
         return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage,cvURL,signatureURL);
     }
 }
-

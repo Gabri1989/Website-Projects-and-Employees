@@ -6,11 +6,13 @@ import com.construct.constructAthens.AzureStorage.StorageService;
 
 import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,6 +47,7 @@ public class EmployeeController{
         List<Employee> employees = employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
+    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -73,6 +76,7 @@ public class EmployeeController{
     }
 
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -87,6 +91,7 @@ public class EmployeeController{
     public Collection<Skill> getSkillsByEmployeeId(@PathVariable UUID employeeId) {
         return employeeService.getSkillsByEmployeeId(employeeId);
     }
+
     @DeleteMapping("/employees/{employeeId}/skills/{skillName}")
     public void deleteSkillBySkillName(@PathVariable UUID employeeId, @PathVariable String skillName) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -100,7 +105,8 @@ public class EmployeeController{
         employeeRepository.save(employee);
     }
 
-   @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PatchMapping("/{id}")
    public Employee updateEmployeeFields(@PathVariable UUID id, @RequestBody Map<String, Object> fields) {
        return employeeService.updateEmployeeByFields(id, fields);
    }
