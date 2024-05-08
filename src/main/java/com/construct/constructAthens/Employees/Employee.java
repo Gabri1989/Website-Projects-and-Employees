@@ -53,12 +53,12 @@ public class Employee  {
     private String emergencyContact;
     private String emergencyPhone;
     private String education;
-    private double timegps;
+    private Double timegps;
     private String motherLanguage;
     private String cvURL;
     private String signatureURL;
-    private double Latitude;
-    private double Longitude;
+    private Double Latitude;
+    private Double Longitude;
 
     public Employee() {
         this.id = UUID.randomUUID();

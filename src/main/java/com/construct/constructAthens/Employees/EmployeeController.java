@@ -72,8 +72,10 @@ public class EmployeeController{
         Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
         employee.setLatitude(latitude);
         employee.setLongitude(longitude);
+        Double accumulatedTime = employee.getTimegps();
+        accumulatedTime += 10.0;
+        employee.setTimegps(accumulatedTime);
         employeeRepository.save(employee);
-
         return ResponseEntity.status(HttpStatus.OK).body(employee);
     }
 
