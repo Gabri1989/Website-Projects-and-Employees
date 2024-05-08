@@ -40,13 +40,15 @@ public class ProjectsService {
 
     public Projects createProjectWithEmployee(Projects project) {
         project.setProjectId(UUID.randomUUID());
+        project.setStatusProject("ON_GOING");
+
         List<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
         for (ProjectEmployees projectEmployees : projectEmployeesList) {
             Employee employee = employeeRepository.findEmployeeById(projectEmployees.getEmployeeId());
             if (employee != null) {
                 ProjectsEmployee projectsEmployee = new ProjectsEmployee();
                 projectsEmployee.setNameProject(project.getNameProject());
-                projectsEmployee.setStatusProject(project.getStatusProject());
+                //projectsEmployee.setStatusProject(project.getStatusProject());
 
                 List<String> headOfSiteIds = new ArrayList<>();
                 for (ProjectHeadSite headSite : project.getProjectHeadSites()) {
@@ -55,7 +57,7 @@ public class ProjectsService {
                 String headOfSiteJson = String.join(", ", headOfSiteIds);
 
                 projectsEmployee.setHeadOfSite(headOfSiteJson);
-                projectsEmployee.setMyContribution(new ProjectsEmployee.MyContribution(projectEmployees.getStartDate(), projectEmployees.getEndDate()));
+                projectsEmployee.setMyContribution(new ProjectsEmployee.MyContribution(project.getStartData(), project.getEndData()));
 
                 employee.getProjects().add(projectsEmployee);
                 employeeRepository.save(employee);
@@ -64,7 +66,12 @@ public class ProjectsService {
         return projectsRepository.saveAndFlush(project);
     }
 
+    //post lat long pt fiecare angajat
+    public void assignLatLongToEmployee(){
+        double  nrOre=0;
 
+          nrOre =nrOre +10;
+    }
     public void deleteProject(UUID projectId) {
         Projects project = projectsRepository.findById(projectId).orElse(null);
         if (project == null) {

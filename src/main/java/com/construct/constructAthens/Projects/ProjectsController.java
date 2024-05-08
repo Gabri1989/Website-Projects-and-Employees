@@ -3,6 +3,7 @@ package com.construct.constructAthens.Projects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,22 +37,19 @@ public class ProjectsController {
         }
     }
 
-   /* @PostMapping
-    public ResponseEntity<Projects> createProject(@RequestBody Projects project) {
-        Projects savedProject = projectsService.saveProject(project);
-        return new ResponseEntity<>(savedProject, HttpStatus.CREATED);
-    }*/
-   @PostMapping
+    @PostMapping
    public ResponseEntity<Projects> createProjectWithEmployee(@RequestBody Projects project) {
        Projects savedProject = projectsService.createProjectWithEmployee(project);
 
        return ResponseEntity.ok(savedProject);
    }
+
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(@PathVariable UUID projectId) {
         projectsService.deleteProject(projectId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
     @PatchMapping("/projects/{projectId}")
     public ResponseEntity<Projects> updateProjectByFields(@PathVariable("projectId") UUID projectId, @RequestBody Map<String, Object> fields) {
         Projects updatedProject = projectsService.updateProjectByFields(projectId, fields);

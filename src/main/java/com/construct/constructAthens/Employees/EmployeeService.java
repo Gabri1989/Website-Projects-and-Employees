@@ -138,7 +138,7 @@ public class EmployeeService {
     }
 
     private void updateProjectsEmployee(ProjectsEmployee project, Map<String, Object> updatedProject) {
-        int timpPerDate = project.getTimpPerDate();
+        double timpPerDate = project.getTimpPerDate();
         String role = project.getRole();
 
         if (updatedProject.containsKey("timpPerDate")) {

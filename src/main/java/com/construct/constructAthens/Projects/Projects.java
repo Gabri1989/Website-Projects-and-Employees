@@ -1,6 +1,7 @@
 package com.construct.constructAthens.Projects;
 
 import com.construct.constructAthens.Employees.Employee_dependencies.ProjectsEmployee;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +23,9 @@ public class Projects {
     private double Latitude;
     private double Longitude;
     private double radius;
-
+    @JsonIgnore
     private String statusProject;
+
     @ElementCollection
     @CollectionTable(name = "employees_for_project", joinColumns = @JoinColumn(name = "project_id"))
     @AttributeOverride(name = "employeeDetails", column = @Column(name = "employee_details"))

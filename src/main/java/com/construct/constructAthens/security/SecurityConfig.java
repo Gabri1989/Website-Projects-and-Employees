@@ -4,6 +4,8 @@ import com.construct.constructAthens.security.services.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.nio.file.AccessDeniedException;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +39,7 @@ public class SecurityConfig {
     }
 
     // Configuring HttpSecurity
-    @Bean
+   @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatchers((matchers) -> matchers
@@ -44,15 +49,26 @@ public class SecurityConfig {
 
                         .anyRequest().hasAnyAuthority("ROLE_EMPLOYEE","ROLE_ADMIN")
                 )
-
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
-
-
-
-    // Password Encoding
+   /* @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/api/auth/generateToken").permitAll()
+                        .requestMatchers("*").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE")
+                        //.requestMatchers("/api/projects/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE")
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }*/
+ /*   @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+    }*/
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

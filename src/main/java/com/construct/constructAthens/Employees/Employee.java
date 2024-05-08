@@ -57,9 +57,16 @@ public class Employee  {
     private String motherLanguage;
     private String cvURL;
     private String signatureURL;
+    private double Latitude;
+    private double Longitude;
+
     public Employee() {
         this.id = UUID.randomUUID();
     }
+
+    public Employee(Double lat, Double aLong) {
+    }
+
     public void setId(UUID id) {
         this.id = id;
     }

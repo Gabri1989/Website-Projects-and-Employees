@@ -16,7 +16,7 @@ import java.util.Objects;
 public class ProjectsEmployee {
     private String nameProject;
     private String statusProject;
-    private int timpPerDate;
+    private double timpPerDate;
     private String role;
     @Column(columnDefinition = "varchar")
     private String headOfSite;
