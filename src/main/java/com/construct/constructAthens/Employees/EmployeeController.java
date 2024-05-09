@@ -5,6 +5,9 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.construct.constructAthens.AzureStorage.StorageService;
 
+import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTime;
+import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTimeGpsRepository;
+import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTimeProjection;
 import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
 import com.construct.constructAthens.Employees.exception.EmployeeNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,29 +24,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/employees")
 @CrossOrigin(origins = "*")
 public class EmployeeController{
-    private final ObjectMapper objectMapper;
     @Autowired
     private final EmployeeService employeeService;
     @Autowired
     private final EmployeeRepository employeeRepository;
-    private final BlobContainerClient blobContainerClient;
     @Autowired
-    private StorageService azureBlobStorageService;
+    private EmployeeTimeGpsRepository employeeTimeGpsRepository;
 
 
     @Autowired
-    public EmployeeController(ObjectMapper objectMapper, EmployeeService employeeService, EmployeeRepository employeeRepository, BlobContainerClient blobContainerClient) {
-        this.objectMapper = objectMapper;
+    public EmployeeController( EmployeeService employeeService, EmployeeRepository employeeRepository,EmployeeTimeGpsRepository employeeTimeGpsRepository) {
         this.employeeService = employeeService;
         this.employeeRepository = employeeRepository;
-
-        this.blobContainerClient = blobContainerClient;
+        this.employeeTimeGpsRepository=employeeTimeGpsRepository;
     }
     //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping
@@ -61,24 +65,69 @@ public class EmployeeController{
         return employee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+/*    @GetMapping("/employee/{id}/accumulated-time/{month}")
+    public ResponseEntity<List<EmployeeTimeProjection>> getAccumulatedTimePerDay(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
+        List<EmployeeTimeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerDay(employeeId, month);
+        if (accumulatedTimeList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
+    }*/
+@GetMapping("/employee/{id}/accumulated-time/{month}")
+public ResponseEntity<List<EmployeeTimeProjection>> getAccumulatedTimePerDay(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
+    List<EmployeeTimeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerDay(employeeId, month);
+    if (accumulatedTimeList.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+    return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
+}
     @PostMapping("/createEmployee")
     public Employee saveEmployee(@RequestBody Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
         return employeeService.saveEmployee(employee);
     }
-    @PostMapping("/addLocation/{id}")
+  /*  @PostMapping("/addLocation/{id}")
     public ResponseEntity<Employee> addLocation(@PathVariable("id") UUID id, @RequestParam Double latitude, @RequestParam Double longitude) {
         Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
         employee.setLatitude(latitude);
         employee.setLongitude(longitude);
+
         Double accumulatedTime = employee.getTimegps();
-        accumulatedTime += 10.0;
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        // Retrieve the accumulated time for the current day
+        List<EmployeeTime> employeeTimeList = employeeTimeGpsRepository.findByEmployeeIdAndDateBetween(id, Date.from(currentDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()), Date.from(currentDateTime.toLocalDate().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        // Update the accumulated time for the current day
+        for (EmployeeTime employeeTime : employeeTimeList) {
+            accumulatedTime += employeeTime.getAccumulatedTime();
+        }
+        accumulatedTime += 10.0; // Add 10 minutes
         employee.setTimegps(accumulatedTime);
         employeeRepository.save(employee);
-        return ResponseEntity.status(HttpStatus.OK).body(employee);
-    }
 
+        // Save or update the EmployeeTime entries for the current day
+        boolean existingEntryUpdated = false;
+        for (EmployeeTime employeeTime : employeeTimeList) {
+            if (employeeTime.getDate().equals(Date.from(currentDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
+                employeeTime.setAccumulatedTime(accumulatedTime);
+                employeeTimeGpsRepository.save(employeeTime);
+                existingEntryUpdated = true;
+                break;
+            }
+        }
+
+        if (!existingEntryUpdated) {
+            EmployeeTime employeeTime = new EmployeeTime();
+            employeeTime.setEmployeeId(id);
+            employeeTime.setDate(Date.from(currentDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            employeeTime.setAccumulatedTime(accumulatedTime);
+            employeeTimeGpsRepository.save(employeeTime);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(employee);
+    }*/
     @PutMapping("/edit/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
         Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
