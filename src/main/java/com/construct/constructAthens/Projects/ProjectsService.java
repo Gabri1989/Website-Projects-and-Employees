@@ -4,6 +4,8 @@ import com.azure.json.implementation.jackson.core.JsonProcessingException;
 import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.Employees.EmployeeService;
+import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTime;
+import com.construct.constructAthens.Employees.Employee_dependencies.MyContribution;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,37 +49,36 @@ public class ProjectsService {
     public Projects createProjectWithEmployee(Projects project) {
         project.setProjectId(UUID.randomUUID());
         project.setStatusProject("ON_GOING");
-
         List<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
         for (ProjectEmployees projectEmployees : projectEmployeesList) {
             Employee employee = employeeRepository.findEmployeeById(projectEmployees.getEmployeeId());
             if (employee != null) {
                 ProjectsEmployee projectsEmployee = new ProjectsEmployee();
                 projectsEmployee.setNameProject(project.getNameProject());
-                //projectsEmployee.setStatusProject(project.getStatusProject());
-
+                projectEmployees.setStartDate(project.getStartData());
+                projectEmployees.setEndDate(project.getEndData());
                 List<String> headOfSiteIds = new ArrayList<>();
                 for (ProjectHeadSite headSite : project.getProjectHeadSites()) {
                     headOfSiteIds.add(headSite.getHeadSiteId().toString());
+                    headSite.setHeadSiteId(headSite.getHeadSiteId());
+                    headSite.setStartDate(project.getStartData());
+                    headSite.setEndDate(project.getEndData());
                 }
+                String employeeIdString = projectEmployees.getEmployeeId().toString();
+                String role = headOfSiteIds.contains(employeeIdString) ? "headOfSite" : "employee";
+                projectsEmployee.setRole(role);
+                projectsEmployee.setStatusProject("ON_GOING");
                 String headOfSiteJson = String.join(", ", headOfSiteIds);
-
                 projectsEmployee.setHeadOfSite(headOfSiteJson);
-                projectsEmployee.setMyContribution(new ProjectsEmployee.MyContribution(project.getStartData(), project.getEndData()));
-
+                projectsEmployee.setMyContribution(new MyContribution(project.getStartData(), project.getEndData()));
                 employee.getProjects().add(projectsEmployee);
                 employeeRepository.save(employee);
             }
         }
+        
         return projectsRepository.saveAndFlush(project);
     }
 
-    //post lat long pt fiecare angajat
-    public void assignLatLongToEmployee(){
-        double  nrOre=0;
-
-          nrOre =nrOre +10;
-    }
     public void deleteProject(UUID projectId) {
         Projects project = projectsRepository.findById(projectId).orElse(null);
         if (project == null) {
@@ -92,7 +93,6 @@ public class ProjectsService {
         project.setProjectHeadSites(new ArrayList<>());
         project.setProjectEmployees(new ArrayList<>());
         projectsRepository.save(project);
-
         projectsRepository.deleteById(projectId);
     }
 
@@ -146,7 +146,6 @@ public class ProjectsService {
                 }
                 projectsRepository.save(existingProject);
             }
-
             projectsRepository.save(existingProject);
             return existingProject;
         }

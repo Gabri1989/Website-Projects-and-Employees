@@ -1,4 +1,5 @@
 package com.construct.constructAthens.Employees;
+import com.construct.constructAthens.Employees.Employee_dependencies.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.azure.core.http.rest.PagedIterable;
@@ -7,10 +8,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobProperties;
 import com.construct.constructAthens.AzureStorage.StorageService;
-import com.construct.constructAthens.Employees.Employee_dependencies.ForeignLanguage;
-import com.construct.constructAthens.Employees.Employee_dependencies.ProjectsEmployee;
-import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
-import com.construct.constructAthens.Employees.Employee_dependencies.WeekSchedule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -102,6 +99,8 @@ public class EmployeeService {
         }
         return null;
     }
+
+
 
     private void updateForeignLanguages(Employee employee, List<Map<String, String>> updatedLanguages) {
         for (Map<String, String> updatedLanguage : updatedLanguages) {

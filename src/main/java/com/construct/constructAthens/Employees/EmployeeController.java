@@ -5,10 +5,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.construct.constructAthens.AzureStorage.StorageService;
 
-import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTime;
-import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTimeGpsRepository;
-import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTimeProjection;
-import com.construct.constructAthens.Employees.Employee_dependencies.Skill;
+import com.construct.constructAthens.Employees.Employee_dependencies.*;
 import com.construct.constructAthens.Employees.exception.EmployeeNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @RestController
@@ -65,69 +63,101 @@ public class EmployeeController{
         return employee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-/*    @GetMapping("/employee/{id}/accumulated-time/{month}")
-    public ResponseEntity<List<EmployeeTimeProjection>> getAccumulatedTimePerDay(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
+
+    @GetMapping("/employee/{id}/accumulated-time/{month}")
+    public ResponseEntity<List<EmployeeProjection>> getAccumulatedTimePerMonth(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
+        List<EmployeeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerMonth(employeeId, month);
+        if (accumulatedTimeList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
+    }
+
+    @GetMapping("/employee/{id}/daily-time/{month}")
+    public ResponseEntity<List<EmployeeTimeProjection>> getDailyAccumulatedTimePerMonth(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
         List<EmployeeTimeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerDay(employeeId, month);
         if (accumulatedTimeList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
-    }*/
-@GetMapping("/employee/{id}/accumulated-time/{month}")
-public ResponseEntity<List<EmployeeTimeProjection>> getAccumulatedTimePerDay(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
-    List<EmployeeTimeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerDay(employeeId, month);
-    if (accumulatedTimeList.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
-    return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
-}
+
     @PostMapping("/createEmployee")
     public Employee saveEmployee(@RequestBody Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
         return employeeService.saveEmployee(employee);
     }
-  /*  @PostMapping("/addLocation/{id}")
-    public ResponseEntity<Employee> addLocation(@PathVariable("id") UUID id, @RequestParam Double latitude, @RequestParam Double longitude) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
-        employee.setLatitude(latitude);
-        employee.setLongitude(longitude);
-
-        Double accumulatedTime = employee.getTimegps();
-        LocalDateTime currentDateTime = LocalDateTime.now();
-
-        // Retrieve the accumulated time for the current day
-        List<EmployeeTime> employeeTimeList = employeeTimeGpsRepository.findByEmployeeIdAndDateBetween(id, Date.from(currentDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()), Date.from(currentDateTime.toLocalDate().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
-
-        // Update the accumulated time for the current day
-        for (EmployeeTime employeeTime : employeeTimeList) {
-            accumulatedTime += employeeTime.getAccumulatedTime();
+    @PostMapping("/checkIn/{employeeid}")
+    public ResponseEntity<EmployeeTime> checkIn(@PathVariable("employeeid") UUID employeeid) {
+        LocalDate currentDate = LocalDate.now();
+        EmployeeTime existingEmployeeTime = employeeTimeGpsRepository.findByEmployeeIdAndDate(employeeid, currentDate);
+        EmployeeTime emp = new EmployeeTime();
+        emp.setEmployeeId(employeeid);
+        emp.setCheckIn(LocalTime.now());
+        emp.setAccumulatedTime(-15.0);
+        if (existingEmployeeTime != null) {
+            existingEmployeeTime.setCheckIn(emp.getCheckIn());
+            emp = existingEmployeeTime;
+        } else {
+            emp.setDate(currentDate);
         }
-        accumulatedTime += 10.0; // Add 10 minutes
-        employee.setTimegps(accumulatedTime);
-        employeeRepository.save(employee);
+        employeeTimeGpsRepository.saveAndFlush(emp);
+        return ResponseEntity.status(HttpStatus.OK).body(emp);
+    }
 
-        // Save or update the EmployeeTime entries for the current day
-        boolean existingEntryUpdated = false;
-        for (EmployeeTime employeeTime : employeeTimeList) {
-            if (employeeTime.getDate().equals(Date.from(currentDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()))) {
-                employeeTime.setAccumulatedTime(accumulatedTime);
-                employeeTimeGpsRepository.save(employeeTime);
-                existingEntryUpdated = true;
-                break;
+    @PostMapping("/checkOut/{employeeid}")
+    public ResponseEntity<EmployeeTime> checkOut(@PathVariable("employeeid") UUID employeeid) {
+        LocalDate currentDate = LocalDate.now();
+        EmployeeTime existingEmployeeTime = employeeTimeGpsRepository.findByEmployeeIdAndDate(employeeid, currentDate);
+        EmployeeTime emp = new EmployeeTime();
+        emp.setEmployeeId(employeeid);
+        emp.setCheckOut(LocalTime.now());
+        if (existingEmployeeTime != null) {
+            existingEmployeeTime.setCheckOut(emp.getCheckOut());
+            emp = existingEmployeeTime;
+        } else {
+            emp.setDate(currentDate);
+        }
+        employeeTimeGpsRepository.saveAndFlush(emp);
+        return ResponseEntity.status(HttpStatus.OK).body(emp);
+    }
+    @PostMapping("/addLocation/{employeeid}")
+    public ResponseEntity<String> addLocation(@PathVariable("employeeid") UUID employeeid, @RequestParam Double latitude, @RequestParam Double longitude) {
+        Optional<Employee> employeeOptional = employeeRepository.findById(employeeid);
+        if (employeeOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
+        }
+        ProjectsEmployee em=new ProjectsEmployee();
+
+        LocalDate currentDate = LocalDate.now();
+        int currentDayOfMonth = currentDate.getDayOfMonth();
+        EmployeeTime existingEmployeeTime = employeeTimeGpsRepository.findByEmployeeIdAndDate(employeeid, currentDate);
+
+        Double accumulatedTime;
+        if (existingEmployeeTime != null) {
+            if (existingEmployeeTime.getDate().getDayOfMonth() != currentDayOfMonth) {
+                existingEmployeeTime = null;
+            } else {
+                existingEmployeeTime.setLatitude(latitude);
+                existingEmployeeTime.setLongitude(longitude);
+                existingEmployeeTime.setTime(LocalTime.now());
+                accumulatedTime = existingEmployeeTime.getAccumulatedTime() + 15;
+                existingEmployeeTime.setAccumulatedTime(accumulatedTime);
+                em.setTimpPerDate(existingEmployeeTime.getAccumulatedTime());
             }
         }
-
-        if (!existingEntryUpdated) {
-            EmployeeTime employeeTime = new EmployeeTime();
-            employeeTime.setEmployeeId(id);
-            employeeTime.setDate(Date.from(currentDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
-            employeeTime.setAccumulatedTime(accumulatedTime);
-            employeeTimeGpsRepository.save(employeeTime);
+        EmployeeTime employeeTime;
+        if (existingEmployeeTime != null) {
+            employeeTime = existingEmployeeTime;
+        } else {
+            LocalTime currentTime = LocalTime.now();
+            accumulatedTime = 0.0;
+            employeeTime = new EmployeeTime(employeeid, currentDate, currentTime, accumulatedTime, latitude, longitude);
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(employee);
-    }*/
+        employeeTimeGpsRepository.saveAndFlush(employeeTime);
+        return ResponseEntity.status(HttpStatus.OK).body("Location data added successfully");
+    }
     @PutMapping("/edit/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
         Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);

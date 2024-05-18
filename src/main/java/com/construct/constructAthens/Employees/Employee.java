@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatusCode;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @AllArgsConstructor
 @Data
@@ -57,14 +54,10 @@ public class Employee  {
     private String motherLanguage;
     private String cvURL;
     private String signatureURL;
-    private Double Latitude;
-    private Double Longitude;
+
 
     public Employee() {
         this.id = UUID.randomUUID();
-    }
-
-    public Employee(Double lat, Double aLong) {
     }
 
     public void setId(UUID id) {
