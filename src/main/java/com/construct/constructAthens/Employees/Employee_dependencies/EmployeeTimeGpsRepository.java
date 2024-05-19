@@ -11,14 +11,19 @@ import java.util.List;
 import java.util.UUID;
 
 public interface EmployeeTimeGpsRepository extends JpaRepository<EmployeeTime, UUID> {
-   @Query("SELECT e.date AS date, SUM(e.accumulatedTime) AS totalTime FROM EmployeeTime e WHERE e.employeeId = :employeeId AND EXTRACT(MONTH FROM e.date) = :month GROUP BY e.date")
-   List<EmployeeProjection> getAccumulatedTimePerMonth(UUID employeeId, int month);
-   @Query("SELECT e.date AS date, SUM(e.accumulatedTime) AS totalTime, e.time AS time, e.Latitude AS latitude, e.Longitude AS longitude " +
+   /*@Query("SELECT e.date AS date, SUM(e.accumulatedTime) AS totalTime FROM EmployeeTime e WHERE e.employeeId = :employeeId AND EXTRACT(MONTH FROM e.date) = :month GROUP BY e.date")
+   List<EmployeeProjection> getAccumulatedTimePerMonth(UUID employeeId, int month);*/
+   /*@Query("SELECT e.date AS date, SUM(e.accumulatedTime) AS totalTime, e.time AS time, e.Latitude AS latitude, e.Longitude AS longitude " +
            "FROM EmployeeTime e " +
            "WHERE e.employeeId = :employeeId AND EXTRACT(MONTH FROM e.date) = :month " +
            "GROUP BY e.date, e.time, e.Latitude, e.Longitude")
    List<EmployeeTimeProjection> getAccumulatedTimePerDay(@Param("employeeId") UUID employeeId, @Param("month") int month);
-
+*/
+   @Query("SELECT e.date AS date, SUM(e.accumulatedTime) AS totalTime, e.time AS time, e.Latitude AS latitude, e.Longitude AS longitude, e.checkIn AS checkIn, e.checkOut AS checkOut " +
+           "FROM EmployeeTime e " +
+           "WHERE e.employeeId = :employeeId AND EXTRACT(MONTH FROM e.date) = :month " +
+           "GROUP BY e.date, e.time, e.Latitude, e.Longitude, e.checkIn, e.checkOut")
+   List<EmployeeTimeProjection> getAccumulatedTimePerDay(@Param("employeeId") UUID employeeId, @Param("month") int month);
 
    EmployeeTime findByEmployeeIdAndDate(UUID employeeid, LocalDate currentDate);
 }

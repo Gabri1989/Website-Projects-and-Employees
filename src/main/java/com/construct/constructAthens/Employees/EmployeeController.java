@@ -64,14 +64,14 @@ public class EmployeeController{
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/employee/{id}/accumulated-time/{month}")
+/*    @GetMapping("/employee/{id}/accumulated-time/{month}")
     public ResponseEntity<List<EmployeeProjection>> getAccumulatedTimePerMonth(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
         List<EmployeeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerMonth(employeeId, month);
         if (accumulatedTimeList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
-    }
+    }*/
 
     @GetMapping("/employee/{id}/daily-time/{month}")
     public ResponseEntity<List<EmployeeTimeProjection>> getDailyAccumulatedTimePerMonth(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {

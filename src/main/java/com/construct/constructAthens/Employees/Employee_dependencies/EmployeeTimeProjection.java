@@ -9,4 +9,6 @@ public interface EmployeeTimeProjection {
     LocalTime getTime();
     Double getLatitude();
     Double getLongitude();
+    LocalTime getCheckIn();
+    LocalTime getCheckOut();
 }

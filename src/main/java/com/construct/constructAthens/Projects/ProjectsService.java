@@ -39,21 +39,38 @@ public class ProjectsService {
 
         return projectsRepository.save(project);
     }
-    public List<Projects> getProjectsByEmployeeId(UUID employeeId) {
+    public List<Projects> getProjectsByEmployeeOrHeadSiteId(UUID id) {
         return projectsRepository.findAll().stream()
                 .filter(project -> project.getProjectEmployees().stream()
-                        .anyMatch(projectEmployee -> projectEmployee.getEmployeeId().equals(employeeId)))
+                        .anyMatch(projectEmployee -> projectEmployee.getEmployeeId().equals(id)) ||
+                        project.getProjectHeadSites().stream()
+                                .anyMatch(projectHeadSite -> projectHeadSite.getHeadSiteId().equals(id)))
                 .collect(Collectors.toList());
     }
 
     public Projects createProjectWithEmployee(Projects project) {
         project.setProjectId(UUID.randomUUID());
         project.setStatusProject("ON_GOING");
+        ProjectsEmployee projectsEmployee = new ProjectsEmployee();
         List<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
+        List<ProjectHeadSite> projectHeadSitesList=project.getProjectHeadSites();
+        for (ProjectHeadSite projectHeadSite : projectHeadSitesList) {
+            Employee employee = employeeRepository.findEmployeeById(projectHeadSite.getHeadSiteId());
+            if(employee!=null){
+                projectsEmployee.setNameProject(project.getNameProject());
+                projectsEmployee.setMyContribution(new MyContribution(project.getStartData(), project.getEndData()));
+                projectsEmployee.setRole("Head Site");
+                projectsEmployee.setHeadOfSite(String.valueOf(projectHeadSite.getHeadSiteId()));
+                projectsEmployee.setStatusProject("ON_GOING");
+                employee.getProjects().add(projectsEmployee);
+                employeeRepository.save(employee);
+            }
+
+        }
         for (ProjectEmployees projectEmployees : projectEmployeesList) {
             Employee employee = employeeRepository.findEmployeeById(projectEmployees.getEmployeeId());
             if (employee != null) {
-                ProjectsEmployee projectsEmployee = new ProjectsEmployee();
+
                 projectsEmployee.setNameProject(project.getNameProject());
                 projectEmployees.setStartDate(project.getStartData());
                 projectEmployees.setEndDate(project.getEndData());
@@ -64,9 +81,7 @@ public class ProjectsService {
                     headSite.setStartDate(project.getStartData());
                     headSite.setEndDate(project.getEndData());
                 }
-                String employeeIdString = projectEmployees.getEmployeeId().toString();
-                String role = headOfSiteIds.contains(employeeIdString) ? "headOfSite" : "employee";
-                projectsEmployee.setRole(role);
+                projectsEmployee.setRole("worker");
                 projectsEmployee.setStatusProject("ON_GOING");
                 String headOfSiteJson = String.join(", ", headOfSiteIds);
                 projectsEmployee.setHeadOfSite(headOfSiteJson);
@@ -75,7 +90,7 @@ public class ProjectsService {
                 employeeRepository.save(employee);
             }
         }
-        
+
         return projectsRepository.saveAndFlush(project);
     }
 
