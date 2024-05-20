@@ -27,10 +27,11 @@ public class ProjectsController {
         return new ResponseEntity<>(projects, HttpStatus.OK);
     }
     @GetMapping("/employees-or-headsites/{id}/projects")
-    public ResponseEntity<List<Projects>> getProjectsByEmployeeOrHeadSiteId(@PathVariable("id") UUID id) {
-        List<Projects> projects = projectsService.getProjectsByEmployeeOrHeadSiteId(id);
-        return ResponseEntity.ok(projects);
+    public ResponseEntity<List<ProjectDetails>> getProjectsByEmployeeOrHeadSiteId(@PathVariable("id") UUID id) {
+        List<ProjectDetails> projectDetails = projectsService.getProjectsByEmployeeOrHeadSiteId(id);
+        return ResponseEntity.ok(projectDetails);
     }
+
 
     @GetMapping("/{projectId}")
     public ResponseEntity<Projects> getProjectById(@PathVariable UUID projectId) {

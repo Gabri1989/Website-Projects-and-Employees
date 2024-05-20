@@ -34,14 +34,12 @@ import java.util.stream.Collectors;
 @Service
 
 public class EmployeeService {
-
     private final EmployeeRepository employeeRepository ;
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository)        {
         this.employeeRepository = employeeRepository;
-
     }
 
     public List<Employee> getAllEmployees() {
@@ -50,13 +48,10 @@ public class EmployeeService {
 
     public Optional<Employee> getEmployeeById(UUID id)  {
         return employeeRepository.findById(id);
-
     }
     public Employee getEmployeeByUsername(String username){
         return employeeRepository.findEmployeeByUsername(username);
     }
-
-
     public Employee saveEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
@@ -99,8 +94,6 @@ public class EmployeeService {
         }
         return null;
     }
-
-
 
     private void updateForeignLanguages(Employee employee, List<Map<String, String>> updatedLanguages) {
         for (Map<String, String> updatedLanguage : updatedLanguages) {
@@ -154,8 +147,6 @@ public class EmployeeService {
         }
     }
 
-
-
     private void updateSkills(Employee employee, List<Map<String, String>> updatedSkills) {
         for (Map<String, String> updatedSkill : updatedSkills) {
             String skillName = updatedSkill.get("skillName");
@@ -199,8 +190,6 @@ public class EmployeeService {
             }
         }
     }
-
-
 
     private void handleEmployeeField(Employee employee, String key, Object value) {
         Field field = ReflectionUtils.findField(Employee.class, key);

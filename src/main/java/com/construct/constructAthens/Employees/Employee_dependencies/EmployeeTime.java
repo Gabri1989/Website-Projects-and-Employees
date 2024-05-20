@@ -22,6 +22,8 @@ public class EmployeeTime {
     @Id
     @Column(name = "employee_id")
     private UUID employeeId;
+    @Column(name = "project_id")
+    private UUID projectId;
     @Column(name = "date")
     private LocalDate date;
     @Column(name = "accumulated_time")
@@ -33,8 +35,9 @@ public class EmployeeTime {
     private LocalTime checkIn;
     private LocalTime checkOut;
 
-    public EmployeeTime(UUID employeeId, LocalDate currentDate,LocalTime time, Double accumulatedTime, Double latitude, Double longitude) {
+    public EmployeeTime(UUID employeeId,UUID projectId, LocalDate currentDate,LocalTime time, Double accumulatedTime, Double latitude, Double longitude) {
         this.employeeId = employeeId;
+        this.projectId = projectId;
         this.date = currentDate;
         this.time=time;
         this.accumulatedTime = accumulatedTime;

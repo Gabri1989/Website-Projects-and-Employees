@@ -4,12 +4,10 @@ import com.azure.json.implementation.jackson.core.JsonProcessingException;
 import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.Employees.EmployeeService;
-import com.construct.constructAthens.Employees.Employee_dependencies.EmployeeTime;
-import com.construct.constructAthens.Employees.Employee_dependencies.MyContribution;
+import com.construct.constructAthens.Employees.Employee_dependencies.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.construct.constructAthens.Employees.Employee_dependencies.ProjectsEmployee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -25,6 +23,8 @@ public class ProjectsService {
     private ProjectsRepository projectsRepository;
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private EmployeeTimeGpsRepository employeeTimeGpsRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProjectsService.class);
 
     public List<Projects> getAllProjects() {
@@ -39,14 +39,24 @@ public class ProjectsService {
 
         return projectsRepository.save(project);
     }
-    public List<Projects> getProjectsByEmployeeOrHeadSiteId(UUID id) {
-        return projectsRepository.findAll().stream()
+    public List<ProjectDetails> getProjectsByEmployeeOrHeadSiteId(UUID id) {
+        List<Projects> projects = projectsRepository.findAll().stream()
                 .filter(project -> project.getProjectEmployees().stream()
                         .anyMatch(projectEmployee -> projectEmployee.getEmployeeId().equals(id)) ||
                         project.getProjectHeadSites().stream()
                                 .anyMatch(projectHeadSite -> projectHeadSite.getHeadSiteId().equals(id)))
                 .collect(Collectors.toList());
+
+        return projects.stream()
+                .map(project -> {
+                    List<EmployeeCheckInOut> employeeTimes = employeeTimeGpsRepository.findByEmployeeIdAndProjectId(id, project.getProjectId()).stream()
+                            .map(employeeTime -> new EmployeeCheckInOut(employeeTime.getCheckIn(), employeeTime.getCheckOut()))
+                            .collect(Collectors.toList());
+                    return new ProjectDetails(project, employeeTimes);
+                })
+                .collect(Collectors.toList());
     }
+
 
     public Projects createProjectWithEmployee(Projects project) {
         project.setProjectId(UUID.randomUUID());
