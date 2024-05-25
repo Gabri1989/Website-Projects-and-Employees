@@ -1,3 +1,4 @@
+/*
 package com.construct.constructAthens.Employees.Employee_dependencies;
 
 import jakarta.persistence.Column;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @Embeddable
@@ -20,3 +22,5 @@ public class EmployeeTimeId implements Serializable {
     private LocalDate date;
 
 }
+
+*/

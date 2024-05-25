@@ -17,9 +17,11 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @Entity
-@IdClass(EmployeeTimeId.class)
+//@IdClass(EmployeeTimeId.class)
 public class EmployeeTime {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     @Column(name = "employee_id")
     private UUID employeeId;
     @Column(name = "project_id")

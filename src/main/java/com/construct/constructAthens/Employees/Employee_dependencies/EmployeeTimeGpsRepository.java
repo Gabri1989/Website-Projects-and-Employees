@@ -17,6 +17,7 @@ public interface EmployeeTimeGpsRepository extends JpaRepository<EmployeeTime, U
            "GROUP BY e.date, e.time, e.Latitude, e.Longitude, e.checkIn, e.checkOut")
    List<EmployeeTimeProjection> getAccumulatedTimePerDay(@Param("employeeId") UUID employeeId, @Param("month") int month);
 
-   EmployeeTime findByEmployeeIdAndDate(UUID employeeid, LocalDate currentDate);
+   //EmployeeTime findByEmployeeIdAndDate(UUID employeeid, LocalDate currentDate);
+   EmployeeTime findByEmployeeIdAndDateAndProjectId(UUID employeeid, LocalDate date, UUID projectid);
    List<EmployeeTime> findByEmployeeIdAndProjectId(UUID employeeId, UUID projectId);
 }
