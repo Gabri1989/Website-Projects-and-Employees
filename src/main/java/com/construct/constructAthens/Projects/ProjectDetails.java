@@ -13,6 +13,4 @@ public class ProjectDetails {
         this.project = project;
         this.employeeTimes = employeeTimes;
     }
-
-
 }

@@ -18,6 +18,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 //@IdClass(EmployeeTimeId.class)
+@Table(name = "employee_time", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"employee_id", "project_id", "date"})
+})
 public class EmployeeTime {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

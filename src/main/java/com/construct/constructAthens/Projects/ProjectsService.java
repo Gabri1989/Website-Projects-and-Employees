@@ -14,6 +14,9 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,20 +42,34 @@ public class ProjectsService {
 
         return projectsRepository.save(project);
     }
+
     public List<ProjectDetails> getProjectsByEmployeeOrHeadSiteId(UUID id) {
+        ZoneId zoneId = ZoneId.of("Europe/Athens");
         List<Projects> projects = projectsRepository.findAll().stream()
                 .filter(project -> project.getProjectEmployees().stream()
                         .anyMatch(projectEmployee -> projectEmployee.getEmployeeId().equals(id)) ||
                         project.getProjectHeadSites().stream()
                                 .anyMatch(projectHeadSite -> projectHeadSite.getHeadSiteId().equals(id)))
-                .collect(Collectors.toList());
+                .toList();
 
         return projects.stream()
                 .map(project -> {
-                    List<EmployeeCheckInOut> employeeTimes = employeeTimeGpsRepository.findByEmployeeIdAndProjectId(id, project.getProjectId()).stream()
-                            .map(employeeTime -> new EmployeeCheckInOut(employeeTime.getCheckIn(), employeeTime.getCheckOut()))
+                    List<EmployeeTime> allEmployeeTimes = employeeTimeGpsRepository.findByEmployeeIdAndProjectId(id, project.getProjectId());
+                    LocalDate today = LocalDate.now(zoneId);
+
+                    List<EmployeeTime> todayEmployeeTimes = allEmployeeTimes.stream()
+                            .filter(employeeTime -> employeeTime.getDate().equals(today))
+                            .toList();
+                    List<EmployeeCheckInOut> employeeCheckInOuts = todayEmployeeTimes.stream()
+                            .map(employeeTime -> new EmployeeCheckInOut(employeeTime.getCheckIn(),
+                                    employeeTime.getCheckOut() != null ? employeeTime.getCheckOut() : null))
                             .collect(Collectors.toList());
-                    return new ProjectDetails(project, employeeTimes);
+
+                    if (employeeCheckInOuts.isEmpty()) {
+                        return new ProjectDetails(project, List.of());
+                    } else {
+                        return new ProjectDetails(project, employeeCheckInOuts);
+                    }
                 })
                 .collect(Collectors.toList());
     }
