@@ -2,33 +2,15 @@ package com.construct.constructAthens.Employees;
 import com.construct.constructAthens.Employees.Employee_dependencies.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobProperties;
-import com.construct.constructAthens.AzureStorage.StorageService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -207,5 +189,59 @@ public class EmployeeService {
             }
         }
     }
+    public Employee updateSkills(UUID id, List<Map<String, String>> skills) {
+        Optional<Employee> existingEmployee = employeeRepository.findById(id);
+        if (existingEmployee.isPresent()) {
+            Employee employee = existingEmployee.get();
+            // Clear existing skills and add the updated list
+            employee.getSkills().clear();
+            for (Map<String, String> updatedSkill : skills) {
+                Skill skill = new Skill();
+                skill.setSkillName(updatedSkill.get("skillName"));
+                skill.setExperience(updatedSkill.get("experience"));
+                skill.setLevel(updatedSkill.get("level"));
+                employee.getSkills().add(skill);
+            }
+            return employeeRepository.save(employee);
+        }
+        return null;
+    }
+
+    public Employee updateWeekSchedules(UUID id, List<Map<String, String>> schedules) {
+        Optional<Employee> existingEmployee = employeeRepository.findById(id);
+        if (existingEmployee.isPresent()) {
+            Employee employee = existingEmployee.get();
+            // Clear existing week schedules and add the updated list
+            employee.getWeekSchedules().clear();
+            for (Map<String, String> updatedSchedule : schedules) {
+                WeekSchedule schedule = new WeekSchedule();
+                schedule.setDay(DayOfWeek.valueOf(updatedSchedule.get("day").toUpperCase()));
+                schedule.setStartSchedule(updatedSchedule.get("startSchedule"));
+                schedule.setEndSchedule(updatedSchedule.get("endSchedule"));
+                employee.getWeekSchedules().add(schedule);
+            }
+            return employeeRepository.save(employee);
+        }
+        return null;
+    }
+
+
+    public Employee updateForeignLanguages(UUID id, List<Map<String, String>> languages) {
+        Optional<Employee> existingEmployee = employeeRepository.findById(id);
+        if (existingEmployee.isPresent()) {
+            Employee employee = existingEmployee.get();
+            // Clear existing foreign languages and add the updated list
+            employee.getForeignLanguages().clear();
+            for (Map<String, String> updatedLanguage : languages) {
+                ForeignLanguage language = new ForeignLanguage();
+                language.setName(updatedLanguage.get("name"));
+                language.setLevel(updatedLanguage.get("level"));
+                employee.getForeignLanguages().add(language);
+            }
+            return employeeRepository.save(employee);
+        }
+        return null;
+    }
+
 
 }

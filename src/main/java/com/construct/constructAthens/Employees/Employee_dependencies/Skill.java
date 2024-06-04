@@ -2,7 +2,6 @@ package com.construct.constructAthens.Employees.Employee_dependencies;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Objects;
 
 

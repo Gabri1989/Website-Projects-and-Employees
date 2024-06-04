@@ -1,29 +1,12 @@
 package com.construct.constructAthens.Employees;
-
-import com.azure.core.exception.ResourceNotFoundException;
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.construct.constructAthens.AzureStorage.StorageService;
-
 import com.construct.constructAthens.Employees.Employee_dependencies.*;
-import com.construct.constructAthens.Employees.exception.EmployeeNotFoundException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.xml.crypto.Data;
-import java.io.IOException;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @RestController
@@ -53,7 +36,6 @@ public class EmployeeController{
 
     //@PreAuthorize("hasAuthority('ROLE_EMPLOYEE') or hasAuthority('ROLE_ADMIN')")
 
-    
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -206,6 +188,25 @@ public class EmployeeController{
    public Employee updateEmployeeFields(@PathVariable UUID id, @RequestBody Map<String, Object> fields) {
        return employeeService.updateEmployeeByFields(id, fields);
    }
+    @PutMapping("/{id}/skills")
+    public Employee updateEmployeeSkill(@PathVariable UUID id, @RequestBody Map<String, List<Map<String, String>>> request) {
+        List<Map<String, String>> skills = request.get("skills");
+        return employeeService.updateSkills(id, skills);
+    }
+
+
+    @PutMapping("/{id}/weekSchedules")
+    public Employee updateEmployeeWeekSchedules(@PathVariable UUID id, @RequestBody Map<String, List<Map<String, String>>> request) {
+        List<Map<String, String>> schedules = request.get("weekSchedules");
+        return employeeService.updateWeekSchedules(id, schedules);
+    }
+
+
+    @PutMapping("/{id}/foreignLanguages")
+    public Employee updateEmployeeForeignLanguages(@PathVariable UUID id, @RequestBody Map<String, List<Map<String, String>>> request) {
+        List<Map<String, String>> languages = request.get("foreignLanguages");
+        return employeeService.updateForeignLanguages(id, languages);
+    }
 
 
 }

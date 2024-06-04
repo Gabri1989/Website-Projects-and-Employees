@@ -12,8 +12,8 @@ public class ObjectMapperConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        objectMapper.registerModule(new JavaTimeModule()); // For LocalDate serialization/deserialization
-        objectMapper.registerModule(new Jdk8Module()); // For Optional serialization/deserialization
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new Jdk8Module());
         return objectMapper;
     }
 }

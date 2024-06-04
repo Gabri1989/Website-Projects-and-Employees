@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -18,9 +20,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@EnableAsync
 public class ProjectsService {
     @Autowired
     private ProjectsRepository projectsRepository;
@@ -73,7 +77,29 @@ public class ProjectsService {
                 })
                 .collect(Collectors.toList());
     }
+  /* public List<ProjectDetails> getProjectsByEmployeeOrHeadSiteId(UUID id) {
+       ZoneId zoneId = ZoneId.of("Europe/Athens");
+       LocalDate today = LocalDate.now(zoneId);
 
+       // Fetch projects directly associated with the employee or headsite
+       List<Projects> projects = projectsRepository.findProjectsByEmployeeIdOrHeadSiteId(id);
+
+       // Fetch all employee times for today in a single query
+       Map<UUID, List<EmployeeTime>> employeeTimesByProject = employeeTimeGpsRepository.findByEmployeeIdAndDate(id, today).stream()
+               .collect(Collectors.groupingBy(EmployeeTime::getProjectId));
+
+       return projects.stream()
+               .map(project -> {
+                   List<EmployeeCheckInOut> employeeCheckInOuts = employeeTimesByProject.getOrDefault(project.getProjectId(), List.of())
+                           .stream()
+                           .map(employeeTime -> new EmployeeCheckInOut(employeeTime.getCheckIn(), employeeTime.getCheckOut()))
+                           .collect(Collectors.toList());
+
+                   return new ProjectDetails(project, employeeCheckInOuts);
+               })
+               .collect(Collectors.toList());
+   }
+*/
 
     public Projects createProjectWithEmployee(Projects project) {
         project.setProjectId(UUID.randomUUID());
