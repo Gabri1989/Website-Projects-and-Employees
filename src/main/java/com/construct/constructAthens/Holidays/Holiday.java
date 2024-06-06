@@ -11,7 +11,6 @@ import java.util.UUID;
 @Entity
 public class Holiday {
     @Id
-    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID holidayID;
     @Column(name = "employee_id", nullable = false)

@@ -47,12 +47,8 @@ public class HolidayService {
   }
 
 public List<Holiday> findEmployeesHolidays(LocalDate queryStartDate, LocalDate queryEndDate) {
-    // Fetch all employees
     List<Employee> employees = employeeRepository.findAll();
-
     List<Holiday> holidays = holidayRepository.findHolidaysByEmployees(queryStartDate, queryEndDate);
-
-    // Group holidays by employee ID
     Map<UUID, List<Holiday>> groupedHolidays = holidays.stream().collect(Collectors.groupingBy(Holiday::getEmployeeId));
 
     List<Holiday> aggregatedHolidays = new ArrayList<>();
@@ -60,13 +56,11 @@ public List<Holiday> findEmployeesHolidays(LocalDate queryStartDate, LocalDate q
     for (Employee employee : employees) {
         List<Holiday> employeeHolidays = groupedHolidays.getOrDefault(employee.getId(), Collections.emptyList());
         if (employeeHolidays.isEmpty()) {
-            // If the employee has no holiday, create a new Holiday object with index set to 0
             Holiday holiday = new Holiday();
             holiday.setEmployeeId(employee.getId());
             holiday.setIndex(0);
             aggregatedHolidays.add(holiday);
         } else {
-            // Merge overlapping or consecutive holidays
             List<Holiday> mergedHolidays = mergeHolidays(employeeHolidays);
 
             for (Holiday holiday : mergedHolidays) {
@@ -92,10 +86,8 @@ public List<Holiday> findEmployeesHolidays(LocalDate queryStartDate, LocalDate q
                 current = holiday;
             } else {
                 if (!holiday.getStartDate().isAfter(current.getEndDate().plusDays(1))) {
-                    // Extend the current holiday period
                     current.setEndDate(holiday.getEndDate().isAfter(current.getEndDate()) ? holiday.getEndDate() : current.getEndDate());
                 } else {
-                    // Add the current holiday period to the list and start a new one
                     mergedHolidays.add(current);
                     current = holiday;
                 }
@@ -111,15 +103,11 @@ public List<Holiday> findEmployeesHolidays(LocalDate queryStartDate, LocalDate q
   public Integer calculateIndex(LocalDate startDate, LocalDate endDate, LocalDate queryStartDate, LocalDate queryEndDate) {
       long totalDays = ChronoUnit.DAYS.between(queryStartDate, queryEndDate) + 1;
       int numberOfWeeks = (int) Math.ceil((double) totalDays / 7);
-
-      // Define the boundaries for each week
       LocalDate[] weekEndDates = new LocalDate[numberOfWeeks];
       for (int i = 0; i < numberOfWeeks; i++) {
           weekEndDates[i] = queryStartDate.plusWeeks(i + 1).minusDays(1);
       }
-      weekEndDates[numberOfWeeks - 1] = queryEndDate; // Ensure the last week end date is the query end date
-
-      // Calculate which weeks the holiday overlaps with
+      weekEndDates[numberOfWeeks - 1] = queryEndDate;
       StringBuilder indexBuilder = new StringBuilder();
       for (int i = 0; i < numberOfWeeks; i++) {
           LocalDate weekStartDate = (i == 0) ? queryStartDate : weekEndDates[i - 1].plusDays(1);
