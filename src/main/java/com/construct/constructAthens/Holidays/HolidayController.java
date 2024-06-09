@@ -65,5 +65,15 @@ public class HolidayController {
         }
         return ResponseEntity.ok(holidays);
     }
+    @DeleteMapping("/deleteHoliday/{id}")
+    public ResponseEntity<Void> deleteHoliday(@PathVariable UUID id){
+        Optional<Holiday> holiday=holidayRepository.findHolidayByHolidayID(id);
+        if(holiday.isPresent()){
+            holidayService.deleteHoliday(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        else {return new ResponseEntity<>(HttpStatus.NOT_FOUND);}
+    }
+
 
 }

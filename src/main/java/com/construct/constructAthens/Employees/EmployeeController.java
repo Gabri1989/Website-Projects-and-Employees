@@ -13,15 +13,10 @@ import java.util.*;
 @RequestMapping("/api/employees")
 @CrossOrigin(origins = "*")
 public class EmployeeController{
-    @Autowired
     private final EmployeeService employeeService;
-    @Autowired
     private final EmployeeRepository employeeRepository;
-    @Autowired
     private EmployeeTimeGpsRepository employeeTimeGpsRepository;
 
-
-    @Autowired
     public EmployeeController( EmployeeService employeeService, EmployeeRepository employeeRepository,EmployeeTimeGpsRepository employeeTimeGpsRepository) {
         this.employeeService = employeeService;
         this.employeeRepository = employeeRepository;

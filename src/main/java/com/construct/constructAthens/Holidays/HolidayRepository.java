@@ -25,6 +25,7 @@ public interface HolidayRepository extends JpaRepository<Holiday, UUID> {
     List<HolidayWithEmployeeDetailsDTO> findAvailableEmployeesWithDetails(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     List<Holiday> findListHolidaysByEmployeeId(UUID employeeId);
+    Optional<Holiday> findHolidayByHolidayID(UUID id);
     @Query("SELECT h FROM Holiday h WHERE h.employeeId = :employeeId AND h.startDate >= :startDate AND h.endDate <= :endDate")
     List<Holiday> findHolidaysByEmployeeAndPeriod(@Param("employeeId") UUID employeeId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

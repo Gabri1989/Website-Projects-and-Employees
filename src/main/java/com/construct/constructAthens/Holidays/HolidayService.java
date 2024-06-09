@@ -30,7 +30,9 @@ public class HolidayService {
         holiday.setStatus("Pending");
         return holidayRepository.save(holiday);
     }
-
+    public void deleteHoliday(UUID id){
+         holidayRepository.deleteById(id);
+    }
     public Holiday updateHolidayStatus(UUID id, String status) throws NotFoundEx {
         Holiday holiday = holidayRepository.findById(id).orElseThrow(() -> new NotFoundEx("Holiday not found"));
         holiday.setStatus(status);
