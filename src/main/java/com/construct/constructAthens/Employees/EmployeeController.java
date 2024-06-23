@@ -23,7 +23,7 @@ public class EmployeeController{
         this.employeeTimeGpsRepository=employeeTimeGpsRepository;
     }
     //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping
+    @GetMapping("/allEmployees")
     public ResponseEntity<List<Employee>> getAllEmployees() {
         List<Employee> employees = employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);

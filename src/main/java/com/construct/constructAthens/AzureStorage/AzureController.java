@@ -31,39 +31,16 @@ public class AzureController {
 
    @PostMapping(path="/uploadFiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
    public ResponseEntity<String> upload(@RequestParam(required = false) MultipartFile imageProfile,
-                                        @RequestParam(required = false) MultipartFile cvFile,
-                                        @RequestParam(required = false) MultipartFile signatureFile,
                                         @RequestParam UUID employeeId) throws IOException {
        String imageURL = null;
-       String cvURL = null;
-       String signatureURL = null;
-
        if (imageProfile != null) {
            String fileName = azureBlobAdapter.upload(imageProfile);
            imageURL = blobStorageEndpoint + "/" + fileName;
        }
-
-       if (cvFile != null) {
-           String cv = azureBlobAdapter.upload(cvFile);
-           cvURL = blobStorageEndpoint + "/" + cv;
-       }
-
-       if (signatureFile != null) {
-           String sign = azureBlobAdapter.upload(signatureFile);
-           signatureURL = blobStorageEndpoint + "/" + sign;
-       }
-
        Employee existingEmployee = employeeRepository.findById(employeeId).orElse(null);
        String existingImageURL = existingEmployee != null ? existingEmployee.getImageURL() : null;
-       String existingCvURL = existingEmployee != null ? existingEmployee.getCvURL() : null;
-       String existingSignatureURL = existingEmployee != null ? existingEmployee.getSignatureURL() : null;
-
        String finalImageURL = imageURL != null ? imageURL : existingImageURL;
-       String finalCvURL = cvURL != null ? cvURL : existingCvURL;
-       String finalSignatureURL = signatureURL != null ? signatureURL : existingSignatureURL;
-
-       employeeRepository.updateEmployeeImageURL(employeeId, finalImageURL, finalCvURL, finalSignatureURL);
-
+       employeeRepository.updateEmployeeImageURL(employeeId, finalImageURL);
        return ResponseEntity.ok(finalImageURL);
    }
 

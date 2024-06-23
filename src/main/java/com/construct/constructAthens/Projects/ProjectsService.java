@@ -77,29 +77,6 @@ public class ProjectsService {
                 })
                 .collect(Collectors.toList());
     }
-  /* public List<ProjectDetails> getProjectsByEmployeeOrHeadSiteId(UUID id) {
-       ZoneId zoneId = ZoneId.of("Europe/Athens");
-       LocalDate today = LocalDate.now(zoneId);
-
-       // Fetch projects directly associated with the employee or headsite
-       List<Projects> projects = projectsRepository.findProjectsByEmployeeIdOrHeadSiteId(id);
-
-       // Fetch all employee times for today in a single query
-       Map<UUID, List<EmployeeTime>> employeeTimesByProject = employeeTimeGpsRepository.findByEmployeeIdAndDate(id, today).stream()
-               .collect(Collectors.groupingBy(EmployeeTime::getProjectId));
-
-       return projects.stream()
-               .map(project -> {
-                   List<EmployeeCheckInOut> employeeCheckInOuts = employeeTimesByProject.getOrDefault(project.getProjectId(), List.of())
-                           .stream()
-                           .map(employeeTime -> new EmployeeCheckInOut(employeeTime.getCheckIn(), employeeTime.getCheckOut()))
-                           .collect(Collectors.toList());
-
-                   return new ProjectDetails(project, employeeCheckInOuts);
-               })
-               .collect(Collectors.toList());
-   }
-*/
 
     public Projects createProjectWithEmployee(Projects project) {
         project.setProjectId(UUID.randomUUID());
@@ -165,59 +142,78 @@ public class ProjectsService {
     }
 
     private void handleProjectField(Projects project, String key, Object value) {
-            Field field = ReflectionUtils.findField(Projects.class, key);
-            if (field != null) {
-                field.setAccessible(true);
-                try {
-                    if (field.getType() == LocalDate.class && value instanceof String) {
-                        LocalDate dateValue = LocalDate.parse((String) value);
-                        field.set(project, dateValue);
-                    } else {
-                        field.set(project, value);
-                    }
-                } catch (IllegalAccessException e) {
-                    logger.error("An error occurred:", e);
+        Field field = ReflectionUtils.findField(Projects.class, key);
+        if (field != null) {
+            field.setAccessible(true);
+            try {
+                if (field.getType() == LocalDate.class && value instanceof String) {
+                    LocalDate dateValue = LocalDate.parse((String) value);
+                    field.set(project, dateValue);
+                } else {
+                    field.set(project, value);
                 }
+            } catch (IllegalAccessException e) {
+                logger.error("An error occurred:", e);
             }
+        }
     }
+
     public Projects updateProjectByFields(UUID projectId, Map<String, Object> fields) {
         Optional<Projects> existingProjectOptional = projectsRepository.findById(projectId);
 
         if (existingProjectOptional.isPresent()) {
             Projects existingProject = existingProjectOptional.get();
             String projectName = existingProject.getNameProject();
-            String projectStatus= existingProject.getStatusProject();
-            fields.forEach((key, value) -> {
-                handleProjectField(existingProject, key, value);
-            });
+            String projectStatus = existingProject.getStatusProject();
 
-            List<Employee> employees = employeeRepository.findAll();
-            for (Employee employee : employees) {
-                for (ProjectsEmployee employeeProject : employee.getProjects()) {
-                    if (employeeProject.getNameProject().equals(projectName)) {
-                        employeeProject.setNameProject(existingProject.getNameProject());
-                    } else if (employeeProject.getStatusProject().equals(projectStatus)) {
-                        employeeProject.setStatusProject(existingProject.getStatusProject());
-                    }
-                } //ramane de completat
-                employeeRepository.save(employee);
+            fields.forEach((key, value) -> handleProjectField(existingProject, key, value));
+
+            // Update projectEmployees
+            if (fields.containsKey("projectEmployees")) {
+                List<Map<String, Object>> projectEmployeesFields = (List<Map<String, Object>>) fields.get("projectEmployees");
+                updateProjectEmployees(existingProject, projectEmployeesFields);
             }
 
-            List<ProjectHeadSite> projectHeadSites = existingProject.getProjectHeadSites();
-            for (ProjectHeadSite headSite : projectHeadSites) {
-
-                if (fields.containsKey("startDate")) {
-                    headSite.setStartDate((String) fields.get("startDate"));
-                }
-                if (fields.containsKey("endDate")) {
-                    headSite.setEndDate((String) fields.get("endDate"));
-                }
-                projectsRepository.save(existingProject);
+            // Update projectHeadSites
+            if (fields.containsKey("projectHeadSites")) {
+                List<Map<String, Object>> projectHeadSitesFields = (List<Map<String, Object>>) fields.get("projectHeadSites");
+                updateProjectHeadSites(existingProject, projectHeadSitesFields);
             }
-            projectsRepository.save(existingProject);
+
+            projectsRepository.save(existingProject); // Save the project once after all modifications
             return existingProject;
         }
 
         return null;
     }
+
+
+
+    private void updateProjectEmployees(Projects project, List<Map<String, Object>> projectEmployeesFields) {
+        List<ProjectEmployees> updatedEmployees = new ArrayList<>();
+
+        for (Map<String, Object> empFields : projectEmployeesFields) {
+            ProjectEmployees employee = new ProjectEmployees();
+            employee.setEmployeeId(UUID.fromString((String) empFields.get("employeeId")));
+            updatedEmployees.add(employee);
+        }
+
+        project.setProjectEmployees(updatedEmployees);
+    }
+
+
+    private void updateProjectHeadSites(Projects project, List<Map<String, Object>> projectHeadSitesFields) {
+        List<ProjectHeadSite> updatedHeadSites = new ArrayList<>();
+
+        for (Map<String, Object> siteFields : projectHeadSitesFields) {
+            ProjectHeadSite headSite = new ProjectHeadSite();
+            headSite.setHeadSiteId(UUID.fromString((String) siteFields.get("headSiteId")));
+            updatedHeadSites.add(headSite);
+        }
+
+        project.setProjectHeadSites(updatedHeadSites);
+    }
+
+
+
 }

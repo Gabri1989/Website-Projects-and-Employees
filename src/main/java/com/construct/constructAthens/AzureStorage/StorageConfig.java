@@ -16,7 +16,7 @@ public class StorageConfig {
     private String containerName;
 
     @Bean
-    public BlobServiceClient clobServiceClient() {
+    public BlobServiceClient blobServiceClient() {
 
         BlobServiceClient blobServiceClient =
                 new BlobServiceClientBuilder()
@@ -30,7 +30,7 @@ public class StorageConfig {
     public BlobContainerClient blobContainerClient() {
 
         BlobContainerClient blobContainerClient =
-                clobServiceClient()
+                blobServiceClient()
                         .getBlobContainerClient(containerName);
 
         return blobContainerClient;

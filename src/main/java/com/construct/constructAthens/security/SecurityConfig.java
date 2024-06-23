@@ -31,8 +31,6 @@ import java.nio.file.AccessDeniedException;
 
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthFilter authFilter;
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserInfoService();
@@ -53,22 +51,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-   /* @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/auth/generateToken").permitAll()
-                        .requestMatchers("*").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE")
-                        //.requestMatchers("/api/projects/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE")
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(Customizer.withDefaults());
-        return http.build();
-    }*/
- /*   @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity handleAccessDeniedException(AccessDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-    }*/
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

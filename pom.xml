@@ -127,8 +127,20 @@
             <artifactId>android-json</artifactId>
             <version>0.0.20131108.vaadin1</version>
         </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
 
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -169,7 +181,7 @@
 	<distributionManagement>
 		<repository>
 			<id>azure-web-app</id>
-			<url>https://back-robert.azurewebsites.net</url>
+			<url>https://back-construct.azurewebsites.net</url>
 		</repository>
 	</distributionManagement>
 	<dependencyManagement>

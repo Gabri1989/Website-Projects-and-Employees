@@ -52,9 +52,7 @@ public List<Holiday> findEmployeesHolidays(LocalDate queryStartDate, LocalDate q
     List<Employee> employees = employeeRepository.findAll();
     List<Holiday> holidays = holidayRepository.findHolidaysByEmployees(queryStartDate, queryEndDate);
     Map<UUID, List<Holiday>> groupedHolidays = holidays.stream().collect(Collectors.groupingBy(Holiday::getEmployeeId));
-
     List<Holiday> aggregatedHolidays = new ArrayList<>();
-
     for (Employee employee : employees) {
         List<Holiday> employeeHolidays = groupedHolidays.getOrDefault(employee.getId(), Collections.emptyList());
         if (employeeHolidays.isEmpty()) {

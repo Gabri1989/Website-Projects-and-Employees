@@ -20,11 +20,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Employee getEmployeesByEmploymentDate(String date);
     @Modifying
     @Transactional
-    @Query("UPDATE Employee e SET e.imageURL = :imageURL, e.cvURL = :cvURL, e.signatureURL = :signatureURL WHERE e.id = :id")
+    @Query("UPDATE Employee e SET e.imageURL = :imageURL WHERE e.id = :id")
     void updateEmployeeImageURL(@Param("id") UUID id,
-                                @Param("imageURL") String imageURL,
-                                @Param("cvURL") String cvURL,
-                                @Param("signatureURL") String signatureURL);
+                                @Param("imageURL") String imageURL);
 
 
 }
