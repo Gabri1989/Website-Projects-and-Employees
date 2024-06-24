@@ -54,9 +54,6 @@ public class Employee  {
     private String education;
     private Double timegps;
     private String motherLanguage;
-    private String cvURL;
-    private String signatureURL;
-
 
     public Employee() {
         this.id = UUID.randomUUID();
@@ -88,13 +85,12 @@ public class Employee  {
                 && Objects.equals(emergencyContact, employee.emergencyContact)
                 && Objects.equals(emergencyPhone, employee.emergencyPhone)
                 && Objects.equals(education, employee.education)
-                && Objects.equals(motherLanguage, employee.motherLanguage)
-                && Objects.equals(cvURL,employee.cvURL)
-                && Objects.equals(signatureURL,employee.signatureURL);
+                && Objects.equals(motherLanguage, employee.motherLanguage);
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage,cvURL,signatureURL);
+        return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage);
     }
 }

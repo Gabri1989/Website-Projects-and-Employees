@@ -48,7 +48,32 @@ public class EmployeeService {
 
         return employee.getSkills();
     }
-
+    void mergeEmployee(Employee existingEmployee, EmployeeDTO updatedEmployeeDTO) {
+        if (updatedEmployeeDTO.getMotherLanguage() != null) {
+            existingEmployee.setMotherLanguage(updatedEmployeeDTO.getMotherLanguage());
+        }
+        if (updatedEmployeeDTO.getNationality() != null) {
+            existingEmployee.setNationality(updatedEmployeeDTO.getNationality());
+        }
+        if (updatedEmployeeDTO.getEmploymentDate() != null) {
+            existingEmployee.setEmploymentDate(updatedEmployeeDTO.getEmploymentDate());
+        }
+        if (updatedEmployeeDTO.getCnp() != null) {
+            existingEmployee.setCnp(updatedEmployeeDTO.getCnp());
+        }
+        if (updatedEmployeeDTO.getUsername() != null) {
+            existingEmployee.setUsername(updatedEmployeeDTO.getUsername());
+        }
+        if (updatedEmployeeDTO.getSkills() != null) {
+            existingEmployee.setSkills(updatedEmployeeDTO.getSkills());
+        }
+        if (updatedEmployeeDTO.getForeignLanguages() != null) {
+            existingEmployee.setForeignLanguages(updatedEmployeeDTO.getForeignLanguages());
+        }
+        if (updatedEmployeeDTO.getWeekSchedules() != null) {
+            existingEmployee.setWeekSchedules(updatedEmployeeDTO.getWeekSchedules());
+        }
+    }
 
     public Employee updateEmployeeByFields(UUID id, Map<String, Object> fields) {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);

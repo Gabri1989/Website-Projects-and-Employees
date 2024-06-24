@@ -14,6 +14,6 @@ import java.util.UUID;
 public interface ProjectsRepository  extends JpaRepository<Projects, UUID> {
     @Query("SELECT p FROM Projects p JOIN p.projectEmployees pe WHERE pe.employeeId = :id OR EXISTS (SELECT phs FROM p.projectHeadSites phs WHERE phs.headSiteId = :id)")
     List<Projects> findProjectsByEmployeeIdOrHeadSiteId(@Param("id") UUID id);
-
+    boolean existsByNameProject(String nameProject);
     Optional<Projects> findByProjectId(UUID id);
 }

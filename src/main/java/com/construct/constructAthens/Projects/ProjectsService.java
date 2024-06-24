@@ -78,15 +78,22 @@ public class ProjectsService {
                 .collect(Collectors.toList());
     }
 
+
     public Projects createProjectWithEmployee(Projects project) {
+        if (projectsRepository.existsByNameProject(project.getNameProject())) {
+            throw new IllegalArgumentException("A project with the name " + project.getNameProject() + " already exists.");
+        }
+
         project.setProjectId(UUID.randomUUID());
         project.setStatusProject("ON_GOING");
-        ProjectsEmployee projectsEmployee = new ProjectsEmployee();
+
         List<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
-        List<ProjectHeadSite> projectHeadSitesList=project.getProjectHeadSites();
+        List<ProjectHeadSite> projectHeadSitesList = project.getProjectHeadSites();
+
         for (ProjectHeadSite projectHeadSite : projectHeadSitesList) {
             Employee employee = employeeRepository.findEmployeeById(projectHeadSite.getHeadSiteId());
-            if(employee!=null){
+            if (employee != null) {
+                ProjectsEmployee projectsEmployee = new ProjectsEmployee();
                 projectsEmployee.setNameProject(project.getNameProject());
                 projectsEmployee.setMyContribution(new MyContribution(project.getStartData(), project.getEndData()));
                 projectsEmployee.setRole("Head Site");
@@ -95,12 +102,12 @@ public class ProjectsService {
                 employee.getProjects().add(projectsEmployee);
                 employeeRepository.save(employee);
             }
-
         }
+
         for (ProjectEmployees projectEmployees : projectEmployeesList) {
             Employee employee = employeeRepository.findEmployeeById(projectEmployees.getEmployeeId());
             if (employee != null) {
-
+                ProjectsEmployee projectsEmployee = new ProjectsEmployee();
                 projectsEmployee.setNameProject(project.getNameProject());
                 projectEmployees.setStartDate(project.getStartData());
                 projectEmployees.setEndDate(project.getEndData());
@@ -131,15 +138,29 @@ public class ProjectsService {
         }
         List<Employee> employees = employeeRepository.findAll();
 
+        LocalDate currentDate = LocalDate.now();
+
         for (Employee employee : employees) {
-            employee.getProjects().removeIf(projectsEmployee -> projectsEmployee.getNameProject().equals(project.getNameProject()));
+            for (Iterator<ProjectsEmployee> iterator = employee.getProjects().iterator(); iterator.hasNext();) {
+                ProjectsEmployee projectsEmployee = iterator.next();
+                if (projectsEmployee.getNameProject().equals(project.getNameProject())) {
+                    projectsEmployee.setStatusProject("Finished");
+                    if (projectsEmployee.getMyContribution() == null) {
+                        projectsEmployee.setMyContribution(new MyContribution());
+                    }
+                    projectsEmployee.getMyContribution().setEndDataContribution(currentDate.toString());
+                    iterator.remove();
+                }
+            }
             employeeRepository.save(employee);
         }
+
         project.setProjectHeadSites(new ArrayList<>());
         project.setProjectEmployees(new ArrayList<>());
         projectsRepository.save(project);
         projectsRepository.deleteById(projectId);
     }
+
 
     private void handleProjectField(Projects project, String key, Object value) {
         Field field = ReflectionUtils.findField(Projects.class, key);
@@ -163,18 +184,23 @@ public class ProjectsService {
 
         if (existingProjectOptional.isPresent()) {
             Projects existingProject = existingProjectOptional.get();
-            String projectName = existingProject.getNameProject();
-            String projectStatus = existingProject.getStatusProject();
+            String newProjectName = (String) fields.get("nameProject");
 
+            if (newProjectName != null && !newProjectName.equals(existingProject.getNameProject()) &&
+                    projectsRepository.existsByNameProject(newProjectName)) {
+                throw new IllegalArgumentException("Project with name " + newProjectName + " already exists.");
+            }
+
+            // Update project fields
             fields.forEach((key, value) -> handleProjectField(existingProject, key, value));
 
-            // Update projectEmployees
+            // Update projectEmployees if present in fields
             if (fields.containsKey("projectEmployees")) {
                 List<Map<String, Object>> projectEmployeesFields = (List<Map<String, Object>>) fields.get("projectEmployees");
                 updateProjectEmployees(existingProject, projectEmployeesFields);
             }
 
-            // Update projectHeadSites
+            // Update projectHeadSites if present in fields
             if (fields.containsKey("projectHeadSites")) {
                 List<Map<String, Object>> projectHeadSitesFields = (List<Map<String, Object>>) fields.get("projectHeadSites");
                 updateProjectHeadSites(existingProject, projectHeadSitesFields);
@@ -213,7 +239,5 @@ public class ProjectsService {
 
         project.setProjectHeadSites(updatedHeadSites);
     }
-
-
 
 }

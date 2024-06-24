@@ -1,5 +1,6 @@
 package com.construct.constructAthens.Employees;
 import com.construct.constructAthens.Employees.Employee_dependencies.*;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class EmployeeController{
         this.employeeRepository = employeeRepository;
         this.employeeTimeGpsRepository=employeeTimeGpsRepository;
     }
-    //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    //@RolesAllowed({"ROLE_ADMIN"})
     @GetMapping("/allEmployees")
     public ResponseEntity<List<Employee>> getAllEmployees() {
         List<Employee> employees = employeeService.getAllEmployees();
@@ -30,29 +31,34 @@ public class EmployeeController{
     }
 
     //@PreAuthorize("hasAuthority('ROLE_EMPLOYEE') or hasAuthority('ROLE_ADMIN')")
-
+    @RolesAllowed({"ROLE_ADMIN"})
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         return employee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-    @GetMapping("/employee/{id}/daily-time/{month}")
-    public ResponseEntity<List<EmployeeTimeProjection>> getDailyAccumulatedTimePerMonth(@PathVariable("id") UUID employeeId, @PathVariable("month") int month) {
-        List<EmployeeTimeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerDay(employeeId, month);
+    //@RolesAllowed({"ROLE_ADMIN"})
+    @GetMapping("/employee/{employeeId}/project/{projectId}/daily-time/{month}")
+    public ResponseEntity<List<EmployeeTimeProjection>> getDailyAccumulatedTimePerMonth(
+            @PathVariable("employeeId") UUID employeeId,
+            @PathVariable("projectId") UUID projectId,
+            @PathVariable("month") int month) {
+        List<EmployeeTimeProjection> accumulatedTimeList = employeeTimeGpsRepository.getAccumulatedTimePerDay(employeeId, projectId, month);
         if (accumulatedTimeList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
     }
 
+    //@RolesAllowed({"ROLE_ADMIN"})
     @PostMapping("/createEmployee")
     public Employee saveEmployee(@RequestBody Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
         return employeeService.saveEmployee(employee);
     }
+    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PostMapping("/checkIn/{employeeid}/{projectid}")
     public ResponseEntity<String> checkIn(@PathVariable("employeeid") UUID employeeid, @PathVariable("projectid") UUID projectid) {
         ZoneId zoneId = ZoneId.of("Europe/Athens");
@@ -76,6 +82,7 @@ public class EmployeeController{
             return ResponseEntity.status(HttpStatus.OK).body("Check-in successful.");
         }
     }
+    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PostMapping("/checkOut/{employeeid}/{projectid}")
     public ResponseEntity<String> checkOut(@PathVariable("employeeid") UUID employeeid, @PathVariable("projectid") UUID projectid) {
         ZoneId zoneId = ZoneId.of("Europe/Athens");
@@ -95,7 +102,7 @@ public class EmployeeController{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No check-in found for today for this project.");
         }
     }
-
+    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PostMapping("/addLocation/{employeeid}/{projectid}")
     public ResponseEntity<String> addLocation(@PathVariable("employeeid") UUID employeeid, @PathVariable("projectid") UUID projectid, @RequestParam Double latitude, @RequestParam Double longitude) {
         Optional<Employee> employeeOptional = employeeRepository.findById(employeeid);
@@ -133,22 +140,21 @@ public class EmployeeController{
         employeeTimeGpsRepository.saveAndFlush(existingEmployeeTime);
         return ResponseEntity.status(HttpStatus.OK).body("Location data added successfully");
     }
+   // @RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
+   @PutMapping("/editEmployee/{id}")
+   public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody EmployeeDTO updatedEmployeeDTO) {
+       Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
+       if (existingEmployee.isPresent()) {
+           Employee updatedEmployee = existingEmployee.get();
+           employeeService.mergeEmployee(updatedEmployee, updatedEmployeeDTO);
+           Employee savedEmployee = employeeService.saveEmployee(updatedEmployee);
+           return new ResponseEntity<>(savedEmployee, HttpStatus.OK);
+       } else {
+           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+       }
+   }
 
-    @PutMapping("/edit/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee updatedEmployee) {
-        Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
-        if (existingEmployee.isPresent()) {
-            updatedEmployee.setId(id);
-            Employee savedEmployee = employeeService.saveEmployee(updatedEmployee);
-
-            return new ResponseEntity<>(savedEmployee, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-
-   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    //@RolesAllowed({"ROLE_ADMIN"})
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -159,12 +165,12 @@ public class EmployeeController{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
+   // @RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @GetMapping("/{employeeId}/skills")
     public Collection<Skill> getSkillsByEmployeeId(@PathVariable UUID employeeId) {
         return employeeService.getSkillsByEmployeeId(employeeId);
     }
-    //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+   // @RolesAllowed({"ROLE_ADMIN"})
     @DeleteMapping("/employees/{employeeId}/skills/{skillName}")
     public void deleteSkillBySkillName(@PathVariable UUID employeeId, @PathVariable String skillName) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -178,25 +184,26 @@ public class EmployeeController{
         employeeRepository.save(employee);
     }
 
-    //@PreAuthorize("hasAuthority('ROLE_EMPLOYEE') or hasAuthority('ROLE_ADMIN')")
+    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PatchMapping("/{id}")
    public Employee updateEmployeeFields(@PathVariable UUID id, @RequestBody Map<String, Object> fields) {
        return employeeService.updateEmployeeByFields(id, fields);
    }
-    @PutMapping("/{id}/skills")
+  //  @RolesAllowed({"ROLE_ADMIN"})
+   @PutMapping("/{id}/skills")
     public Employee updateEmployeeSkill(@PathVariable UUID id, @RequestBody Map<String, List<Map<String, String>>> request) {
         List<Map<String, String>> skills = request.get("skills");
         return employeeService.updateSkills(id, skills);
     }
 
-
+   // @RolesAllowed({"ROLE_ADMIN"})
     @PutMapping("/{id}/weekSchedules")
     public Employee updateEmployeeWeekSchedules(@PathVariable UUID id, @RequestBody Map<String, List<Map<String, String>>> request) {
         List<Map<String, String>> schedules = request.get("weekSchedules");
         return employeeService.updateWeekSchedules(id, schedules);
     }
 
-
+    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PutMapping("/{id}/foreignLanguages")
     public Employee updateEmployeeForeignLanguages(@PathVariable UUID id, @RequestBody Map<String, List<Map<String, String>>> request) {
         List<Map<String, String>> languages = request.get("foreignLanguages");

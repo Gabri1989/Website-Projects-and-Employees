@@ -44,12 +44,15 @@ public class ProjectsController {
         }
     }
 
-    @PostMapping
-   public ResponseEntity<Projects> createProjectWithEmployee(@RequestBody Projects project) {
-       Projects savedProject = projectsService.createProjectWithEmployee(project);
-
-       return ResponseEntity.ok(savedProject);
-   }
+    @PostMapping("/create")
+    public ResponseEntity<?> createProject(@RequestBody Projects project) {
+        try {
+            Projects createdProject = projectsService.createProjectWithEmployee(project);
+            return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @DeleteMapping("/{projectId}")
     public ResponseEntity<Void> deleteProject(@PathVariable UUID projectId) {
@@ -57,12 +60,19 @@ public class ProjectsController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/projects/{projectId}")
-    public ResponseEntity<Projects> updateProjectByFields(@PathVariable("projectId") UUID projectId, @RequestBody Map<String, Object> fields) {
-        Projects updatedProject = projectsService.updateProjectByFields(projectId, fields);
-        if (updatedProject != null) {
-            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+    @PatchMapping("/{projectId}")
+    public ResponseEntity<Projects> updateProjectByFields(@PathVariable("projectId") UUID projectId,
+                                                          @RequestBody Map<String, Object> fields) {
+        try {
+            Projects updatedProject = projectsService.updateProjectByFields(projectId, fields);
+            if (updatedProject != null) {
+                return ResponseEntity.ok(updatedProject);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IllegalArgumentException e) {
+            // Return a ResponseEntity with a BadRequest status and the error message in the body
+            return ResponseEntity.badRequest().body(null); // Or you can handle the error message differently
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
