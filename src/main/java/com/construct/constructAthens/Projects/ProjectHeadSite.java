@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Embeddable
@@ -22,5 +23,17 @@ public class ProjectHeadSite {
     @JsonIgnore
     @Column(name = "end_date")
     private String endDate;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectHeadSite that = (ProjectHeadSite) o;
+        return headSiteId.equals(that.headSiteId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(headSiteId);
+    }
 
 }

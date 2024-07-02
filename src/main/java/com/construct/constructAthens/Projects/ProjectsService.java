@@ -5,7 +5,9 @@ import com.construct.constructAthens.Employees.Employee;
 import com.construct.constructAthens.Employees.EmployeeRepository;
 import com.construct.constructAthens.Employees.EmployeeService;
 import com.construct.constructAthens.Employees.Employee_dependencies.*;
+import com.construct.constructAthens.Projects.Exceptions.ProjectNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,8 +89,8 @@ public class ProjectsService {
         project.setProjectId(UUID.randomUUID());
         project.setStatusProject("ON_GOING");
 
-        List<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
-        List<ProjectHeadSite> projectHeadSitesList = project.getProjectHeadSites();
+        Set<ProjectEmployees> projectEmployeesList = project.getProjectEmployees();
+        Set<ProjectHeadSite> projectHeadSitesList = project.getProjectHeadSites();
 
         for (ProjectHeadSite projectHeadSite : projectHeadSitesList) {
             Employee employee = employeeRepository.findEmployeeById(projectHeadSite.getHeadSiteId());
@@ -141,28 +143,25 @@ public class ProjectsService {
         LocalDate currentDate = LocalDate.now();
 
         for (Employee employee : employees) {
-            for (Iterator<ProjectsEmployee> iterator = employee.getProjects().iterator(); iterator.hasNext();) {
-                ProjectsEmployee projectsEmployee = iterator.next();
+            for (ProjectsEmployee projectsEmployee : employee.getProjects()) {
                 if (projectsEmployee.getNameProject().equals(project.getNameProject())) {
                     projectsEmployee.setStatusProject("Finished");
                     if (projectsEmployee.getMyContribution() == null) {
                         projectsEmployee.setMyContribution(new MyContribution());
                     }
                     projectsEmployee.getMyContribution().setEndDataContribution(currentDate.toString());
-                    iterator.remove();
+                    //iterator.remove();
                 }
             }
             employeeRepository.save(employee);
         }
 
-        project.setProjectHeadSites(new ArrayList<>());
-        project.setProjectEmployees(new ArrayList<>());
+        project.setProjectHeadSites(new HashSet<>());
+        project.setProjectEmployees(new HashSet<>());
         projectsRepository.save(project);
         projectsRepository.deleteById(projectId);
     }
-
-
-    private void handleProjectField(Projects project, String key, Object value) {
+ /*   private void handleProjectField(Projects project, String key, Object value) {
         Field field = ReflectionUtils.findField(Projects.class, key);
         if (field != null) {
             field.setAccessible(true);
@@ -190,32 +189,24 @@ public class ProjectsService {
                     projectsRepository.existsByNameProject(newProjectName)) {
                 throw new IllegalArgumentException("Project with name " + newProjectName + " already exists.");
             }
-
-            // Update project fields
             fields.forEach((key, value) -> handleProjectField(existingProject, key, value));
-
-            // Update projectEmployees if present in fields
             if (fields.containsKey("projectEmployees")) {
                 List<Map<String, Object>> projectEmployeesFields = (List<Map<String, Object>>) fields.get("projectEmployees");
                 updateProjectEmployees(existingProject, projectEmployeesFields);
             }
-
-            // Update projectHeadSites if present in fields
             if (fields.containsKey("projectHeadSites")) {
                 List<Map<String, Object>> projectHeadSitesFields = (List<Map<String, Object>>) fields.get("projectHeadSites");
                 updateProjectHeadSites(existingProject, projectHeadSitesFields);
             }
-
-            projectsRepository.save(existingProject); // Save the project once after all modifications
+            projectsRepository.save(existingProject);
             return existingProject;
         }
-
         return null;
     }
 
 
 
-    private void updateProjectEmployees(Projects project, List<Map<String, Object>> projectEmployeesFields) {
+   private void updateProjectEmployees(Projects project, List<Map<String, Object>> projectEmployeesFields) {
         List<ProjectEmployees> updatedEmployees = new ArrayList<>();
 
         for (Map<String, Object> empFields : projectEmployeesFields) {
@@ -226,6 +217,9 @@ public class ProjectsService {
 
         project.setProjectEmployees(updatedEmployees);
     }
+
+
+
 
 
     private void updateProjectHeadSites(Projects project, List<Map<String, Object>> projectHeadSitesFields) {
@@ -239,5 +233,89 @@ public class ProjectsService {
 
         project.setProjectHeadSites(updatedHeadSites);
     }
+*/
+ @Transactional
+ public Projects editProject(UUID projectId, Projects newProjectData) {
+     Optional<Projects> optionalProject = projectsRepository.findById(projectId);
 
+     if (optionalProject.isPresent()) {
+         Projects existingProject = optionalProject.get();
+
+         // Update project details
+         String oldNameProject = existingProject.getNameProject();
+         String newNameProject = newProjectData.getNameProject();
+         existingProject.setNameProject(newNameProject);
+         existingProject.setStartData(newProjectData.getStartData());
+         existingProject.setEndData(newProjectData.getEndData());
+         existingProject.setLatitude(newProjectData.getLatitude());
+         existingProject.setLongitude(newProjectData.getLongitude());
+         existingProject.setRadius(newProjectData.getRadius());
+
+         Set<UUID> newEmployeeIds = newProjectData.getProjectEmployees().stream()
+                 .map(ProjectEmployees::getEmployeeId)
+                 .collect(Collectors.toSet());
+
+         existingProject.getProjectEmployees().removeIf(existingEmployee -> {
+             boolean isRemoved = !newEmployeeIds.contains(existingEmployee.getEmployeeId());
+             if (isRemoved) {
+                 updateEmployeeEndDataContribution(existingEmployee.getEmployeeId(), oldNameProject);
+             }
+             return isRemoved;
+         });
+         Set<UUID> newHeadSiteIds = newProjectData.getProjectHeadSites().stream()
+                 .map(ProjectHeadSite::getHeadSiteId)
+                 .collect(Collectors.toSet());
+
+         existingProject.getProjectHeadSites().removeIf(existingHeadSite -> {
+             boolean isRemoved = !newHeadSiteIds.contains(existingHeadSite.getHeadSiteId());
+             if (isRemoved) {
+                 updateEmployeeEndDataContribution(existingHeadSite.getHeadSiteId(), oldNameProject);
+             }
+             return isRemoved;
+         });
+
+         Set<ProjectEmployees> updatedEmployees = new HashSet<>(existingProject.getProjectEmployees());
+         updatedEmployees.addAll(newProjectData.getProjectEmployees());
+         existingProject.setProjectEmployees(updatedEmployees);
+
+         Set<ProjectHeadSite> updatedHeadSites = new HashSet<>(existingProject.getProjectHeadSites());
+         updatedHeadSites.addAll(newProjectData.getProjectHeadSites());
+         existingProject.setProjectHeadSites(updatedHeadSites);
+         updateEmployeeProjectNames(oldNameProject, newNameProject);
+
+         return projectsRepository.save(existingProject);
+     } else {
+         throw new ProjectNotFoundException("Project with ID " + projectId + " not found.");
+     }
+ }
+
+    private void updateEmployeeEndDataContribution(UUID employeeId, String projectName) {
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+        if (employee != null) {
+            LocalDate currentDate = LocalDate.now();
+            for (ProjectsEmployee projectsEmployee : employee.getProjects()) {
+                if (projectsEmployee.getNameProject().equals(projectName)) {
+                    projectsEmployee.setStatusProject("Finished");
+                    if (projectsEmployee.getMyContribution() == null) {
+                        projectsEmployee.setMyContribution(new MyContribution());
+                    }
+                    projectsEmployee.getMyContribution().setEndDataContribution(currentDate.toString());
+                }
+            }
+            employeeRepository.save(employee);
+        }
+    }
+
+    private void updateEmployeeProjectNames(String oldNameProject, String newNameProject) {
+        List<Employee> employees = employeeRepository.findAll();
+        for (Employee employee : employees) {
+            for (ProjectsEmployee projectsEmployee : employee.getProjects()) {
+                if (projectsEmployee.getNameProject().equals(oldNameProject)) {
+                    projectsEmployee.setNameProject(newNameProject);
+                }
+            }
+            employeeRepository.save(employee);
+        }
+    }
 }
+

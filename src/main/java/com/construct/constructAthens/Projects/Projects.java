@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,12 +26,12 @@ public class Projects {
     @ElementCollection
     @CollectionTable(name = "employees_for_project", joinColumns = @JoinColumn(name = "project_id"))
     @AttributeOverride(name = "employeeDetails", column = @Column(name = "employee_details"))
-    private List<ProjectEmployees> projectEmployees;
+    private Set<ProjectEmployees> projectEmployees;
 
     @ElementCollection
     @CollectionTable(name = "headsite_for_project", joinColumns = @JoinColumn(name = "project_id"))
     @AttributeOverride(name = "headSiteDetails", column = @Column(name = "head_site_details"))
-    private List<ProjectHeadSite> projectHeadSites;
+    private Set<ProjectHeadSite> projectHeadSites;
 
 }
 

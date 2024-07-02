@@ -60,7 +60,7 @@ public class ProjectsController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/{projectId}")
+/*    @PatchMapping("/{projectId}")
     public ResponseEntity<Projects> updateProjectByFields(@PathVariable("projectId") UUID projectId,
                                                           @RequestBody Map<String, Object> fields) {
         try {
@@ -71,8 +71,12 @@ public class ProjectsController {
                 return ResponseEntity.notFound().build();
             }
         } catch (IllegalArgumentException e) {
-            // Return a ResponseEntity with a BadRequest status and the error message in the body
-            return ResponseEntity.badRequest().body(null); // Or you can handle the error message differently
+            return ResponseEntity.badRequest().body(null);
         }
+    }*/
+    @PutMapping("/{projectId}")
+    public ResponseEntity<Projects> editProject(@PathVariable UUID projectId, @RequestBody Projects newProjectData) {
+        Projects updatedProject = projectsService.editProject(projectId, newProjectData);
+        return ResponseEntity.ok(updatedProject);
     }
 }
