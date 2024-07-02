@@ -137,17 +137,9 @@ public class EmployeeService {
     }
 
     private void updateProjectsEmployee(ProjectsEmployee project, Map<String, Object> updatedProject) {
-        double timpPerDate = project.getTimpPerDate();
         String role = project.getRole();
-
-        if (updatedProject.containsKey("timpPerDate")) {
-            project.setTimpPerDate((int) updatedProject.get("timpPerDate"));
-        }
         if (updatedProject.containsKey("role")) {
             project.setRole((String) updatedProject.get("role"));
-        }
-        if (project.getTimpPerDate() == 0) {
-            project.setTimpPerDate(timpPerDate);
         }
         if (project.getRole() == null) {
             project.setRole(role);
@@ -267,6 +259,5 @@ public class EmployeeService {
         }
         return null;
     }
-
 
 }

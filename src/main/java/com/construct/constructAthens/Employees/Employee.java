@@ -52,7 +52,6 @@ public class Employee  {
     private String emergencyContact;
     private String emergencyPhone;
     private String education;
-    private Double timegps;
     private String motherLanguage;
 
     public Employee() {
@@ -70,7 +69,6 @@ public class Employee  {
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
         return    kids == employee.kids
-                && Double.compare(timegps, employee.timegps) == 0
                 && Objects.equals(id, employee.id)
                 && Objects.equals(username, employee.username)
                 && Objects.equals(fullname, employee.fullname)
@@ -91,6 +89,6 @@ public class Employee  {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, timegps, motherLanguage);
+        return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, motherLanguage);
     }
 }

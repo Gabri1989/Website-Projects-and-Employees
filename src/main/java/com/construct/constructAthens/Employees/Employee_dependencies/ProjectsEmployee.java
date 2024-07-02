@@ -12,7 +12,6 @@ import java.util.Objects;
 public class ProjectsEmployee {
     private String nameProject;
     private String statusProject;
-    private double timpPerDate;
     private String role;
     @Column(columnDefinition = "varchar")
     private String headOfSite;
@@ -22,8 +21,7 @@ public class ProjectsEmployee {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProjectsEmployee projects = (ProjectsEmployee) o;
-        return timpPerDate == projects.timpPerDate &&
-                Objects.equals(nameProject, projects.nameProject) &&
+        return nameProject == projects.nameProject &&
                 Objects.equals(statusProject, projects.statusProject) &&
                 Objects.equals(role, projects.role) &&
                 Objects.equals(headOfSite, projects.headOfSite) &&
@@ -32,8 +30,7 @@ public class ProjectsEmployee {
 
     @Override
     public int hashCode() {
-        //return Objects.hash( timpPerDate, role, myContribution);
-        return Objects.hash(nameProject, statusProject, timpPerDate, role, headOfSite, myContribution);
+        return Objects.hash(nameProject, statusProject, role, headOfSite, myContribution);
     }
 
 }
