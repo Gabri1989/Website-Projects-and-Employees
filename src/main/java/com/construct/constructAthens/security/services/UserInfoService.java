@@ -46,7 +46,6 @@ public class UserInfoService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }
 
-
     public ResponseEntity<String> addUser(UserInfo userInfo) {
         try {
             if (repository.existsByUsername(userInfo.getUsername())) {

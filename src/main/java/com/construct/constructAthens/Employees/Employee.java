@@ -86,7 +86,6 @@ public class Employee  {
                 && Objects.equals(motherLanguage, employee.motherLanguage);
 
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(id, username, fullname, imageURL, email, number, adress, cnp, employmentDate, birthday, nationality, kids, emergencyContact, emergencyPhone, education, motherLanguage);

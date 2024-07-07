@@ -210,7 +210,6 @@ public class EmployeeService {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
         if (existingEmployee.isPresent()) {
             Employee employee = existingEmployee.get();
-            // Clear existing skills and add the updated list
             employee.getSkills().clear();
             for (Map<String, String> updatedSkill : skills) {
                 Skill skill = new Skill();
@@ -228,7 +227,6 @@ public class EmployeeService {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
         if (existingEmployee.isPresent()) {
             Employee employee = existingEmployee.get();
-            // Clear existing week schedules and add the updated list
             employee.getWeekSchedules().clear();
             for (Map<String, String> updatedSchedule : schedules) {
                 WeekSchedule schedule = new WeekSchedule();
@@ -247,7 +245,6 @@ public class EmployeeService {
         Optional<Employee> existingEmployee = employeeRepository.findById(id);
         if (existingEmployee.isPresent()) {
             Employee employee = existingEmployee.get();
-            // Clear existing foreign languages and add the updated list
             employee.getForeignLanguages().clear();
             for (Map<String, String> updatedLanguage : languages) {
                 ForeignLanguage language = new ForeignLanguage();

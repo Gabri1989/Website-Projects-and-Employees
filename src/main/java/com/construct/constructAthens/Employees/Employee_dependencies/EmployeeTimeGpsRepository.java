@@ -21,8 +21,4 @@ public interface EmployeeTimeGpsRepository extends JpaRepository<EmployeeTime, U
    List<EmployeeTime> findByEmployeeIdAndProjectId(UUID employeeId, UUID projectId);
    EmployeeTime findByEmployeeIdAndDateAndProjectId(UUID employeeId, LocalDate date, UUID projectId);
 
-   @Query("SELECT et FROM EmployeeTime et WHERE et.employeeId = :employeeId AND et.date = :date")
-   List<EmployeeTime> findByEmployeeIdAndDate(@Param("employeeId") UUID employeeId, @Param("date") LocalDate date);
-
-
 }

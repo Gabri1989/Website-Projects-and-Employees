@@ -161,87 +161,13 @@ public class ProjectsService {
         projectsRepository.save(project);
         projectsRepository.deleteById(projectId);
     }
- /*   private void handleProjectField(Projects project, String key, Object value) {
-        Field field = ReflectionUtils.findField(Projects.class, key);
-        if (field != null) {
-            field.setAccessible(true);
-            try {
-                if (field.getType() == LocalDate.class && value instanceof String) {
-                    LocalDate dateValue = LocalDate.parse((String) value);
-                    field.set(project, dateValue);
-                } else {
-                    field.set(project, value);
-                }
-            } catch (IllegalAccessException e) {
-                logger.error("An error occurred:", e);
-            }
-        }
-    }
 
-    public Projects updateProjectByFields(UUID projectId, Map<String, Object> fields) {
-        Optional<Projects> existingProjectOptional = projectsRepository.findById(projectId);
-
-        if (existingProjectOptional.isPresent()) {
-            Projects existingProject = existingProjectOptional.get();
-            String newProjectName = (String) fields.get("nameProject");
-
-            if (newProjectName != null && !newProjectName.equals(existingProject.getNameProject()) &&
-                    projectsRepository.existsByNameProject(newProjectName)) {
-                throw new IllegalArgumentException("Project with name " + newProjectName + " already exists.");
-            }
-            fields.forEach((key, value) -> handleProjectField(existingProject, key, value));
-            if (fields.containsKey("projectEmployees")) {
-                List<Map<String, Object>> projectEmployeesFields = (List<Map<String, Object>>) fields.get("projectEmployees");
-                updateProjectEmployees(existingProject, projectEmployeesFields);
-            }
-            if (fields.containsKey("projectHeadSites")) {
-                List<Map<String, Object>> projectHeadSitesFields = (List<Map<String, Object>>) fields.get("projectHeadSites");
-                updateProjectHeadSites(existingProject, projectHeadSitesFields);
-            }
-            projectsRepository.save(existingProject);
-            return existingProject;
-        }
-        return null;
-    }
-
-
-
-   private void updateProjectEmployees(Projects project, List<Map<String, Object>> projectEmployeesFields) {
-        List<ProjectEmployees> updatedEmployees = new ArrayList<>();
-
-        for (Map<String, Object> empFields : projectEmployeesFields) {
-            ProjectEmployees employee = new ProjectEmployees();
-            employee.setEmployeeId(UUID.fromString((String) empFields.get("employeeId")));
-            updatedEmployees.add(employee);
-        }
-
-        project.setProjectEmployees(updatedEmployees);
-    }
-
-
-
-
-
-    private void updateProjectHeadSites(Projects project, List<Map<String, Object>> projectHeadSitesFields) {
-        List<ProjectHeadSite> updatedHeadSites = new ArrayList<>();
-
-        for (Map<String, Object> siteFields : projectHeadSitesFields) {
-            ProjectHeadSite headSite = new ProjectHeadSite();
-            headSite.setHeadSiteId(UUID.fromString((String) siteFields.get("headSiteId")));
-            updatedHeadSites.add(headSite);
-        }
-
-        project.setProjectHeadSites(updatedHeadSites);
-    }
-*/
  @Transactional
  public Projects editProject(UUID projectId, Projects newProjectData) {
      Optional<Projects> optionalProject = projectsRepository.findById(projectId);
 
      if (optionalProject.isPresent()) {
          Projects existingProject = optionalProject.get();
-
-         // Update project details
          String oldNameProject = existingProject.getNameProject();
          String newNameProject = newProjectData.getNameProject();
          existingProject.setNameProject(newNameProject);

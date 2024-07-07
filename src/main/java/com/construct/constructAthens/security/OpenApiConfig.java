@@ -1,4 +1,4 @@
-/*
+
 package com.construct.constructAthens.security;
 
 import io.swagger.v3.oas.models.Components;
@@ -25,4 +25,4 @@ public class OpenApiConfig {
                                         .bearerFormat("JWT")))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-key"));
     }
-}*/
+}

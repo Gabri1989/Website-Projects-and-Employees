@@ -21,7 +21,7 @@ public class ProjectsEmployee {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProjectsEmployee projects = (ProjectsEmployee) o;
-        return nameProject == projects.nameProject &&
+        return Objects.equals(nameProject, projects.nameProject) &&
                 Objects.equals(statusProject, projects.statusProject) &&
                 Objects.equals(role, projects.role) &&
                 Objects.equals(headOfSite, projects.headOfSite) &&

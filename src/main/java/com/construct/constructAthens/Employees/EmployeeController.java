@@ -16,22 +16,21 @@ import java.util.*;
 public class EmployeeController{
     private final EmployeeService employeeService;
     private final EmployeeRepository employeeRepository;
-    private EmployeeTimeGpsRepository employeeTimeGpsRepository;
+    private final EmployeeTimeGpsRepository employeeTimeGpsRepository;
 
     public EmployeeController( EmployeeService employeeService, EmployeeRepository employeeRepository,EmployeeTimeGpsRepository employeeTimeGpsRepository) {
         this.employeeService = employeeService;
         this.employeeRepository = employeeRepository;
         this.employeeTimeGpsRepository=employeeTimeGpsRepository;
     }
-    //@RolesAllowed({"ROLE_ADMIN"})
+   // @RolesAllowed({"ROLE_ADMIN"})
     @GetMapping("/allEmployees")
     public ResponseEntity<List<Employee>> getAllEmployees() {
         List<Employee> employees = employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
-    //@PreAuthorize("hasAuthority('ROLE_EMPLOYEE') or hasAuthority('ROLE_ADMIN')")
-    @RolesAllowed({"ROLE_ADMIN"})
+    //@RolesAllowed({"ROLE_ADMIN"})
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -51,14 +50,14 @@ public class EmployeeController{
         return ResponseEntity.status(HttpStatus.OK).body(accumulatedTimeList);
     }
 
-    //@RolesAllowed({"ROLE_ADMIN"})
+   // @RolesAllowed({"ROLE_ADMIN"})
     @PostMapping("/createEmployee")
     public Employee saveEmployee(@RequestBody Employee employee) {
         UUID userId = UUID.randomUUID();
         employee.setId(userId);
         return employeeService.saveEmployee(employee);
     }
-    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
+   // @RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PostMapping("/checkIn/{employeeid}/{projectid}")
     public ResponseEntity<String> checkIn(@PathVariable("employeeid") UUID employeeid, @PathVariable("projectid") UUID projectid) {
         ZoneId zoneId = ZoneId.of("Europe/Athens");
@@ -76,13 +75,13 @@ public class EmployeeController{
             emp.setEmployeeId(employeeid);
             emp.setProjectId(projectid);
             emp.setCheckIn(checkInTime);
-            emp.setAccumulatedTime(-15.0);
+            emp.setAccumulatedTime(0.0);
             emp.setDate(currentDate);
             employeeTimeGpsRepository.saveAndFlush(emp);
             return ResponseEntity.status(HttpStatus.OK).body("Check-in successful.");
         }
     }
-    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
+   // @RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PostMapping("/checkOut/{employeeid}/{projectid}")
     public ResponseEntity<String> checkOut(@PathVariable("employeeid") UUID employeeid, @PathVariable("projectid") UUID projectid) {
         ZoneId zoneId = ZoneId.of("Europe/Athens");
@@ -102,7 +101,7 @@ public class EmployeeController{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No check-in found for today for this project.");
         }
     }
-    //@RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
+   // @RolesAllowed({"ROLE_EMPLOEE","ROLE_ADMIN"})
     @PostMapping("/addLocation/{employeeid}/{projectid}")
     public ResponseEntity<String> addLocation(@PathVariable("employeeid") UUID employeeid, @PathVariable("projectid") UUID projectid, @RequestParam Double latitude, @RequestParam Double longitude) {
         Optional<Employee> employeeOptional = employeeRepository.findById(employeeid);

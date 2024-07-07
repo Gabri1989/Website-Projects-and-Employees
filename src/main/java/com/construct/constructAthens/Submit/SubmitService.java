@@ -1,6 +1,8 @@
 package com.construct.constructAthens.Submit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ public class SubmitService {
         this.submitRepository = submitRepository;
     }
     public List<Submit> gettAllSubmits(){
+        log.info("Gaseste toate cererile..");
         return submitRepository.findAll();
     }
     public Optional<Submit> getSubmitById(Long id){
@@ -27,5 +30,6 @@ public class SubmitService {
     public void deleteSubmit(Long id){
          submitRepository.deleteById(id);
     }
+
 
 }

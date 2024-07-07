@@ -31,15 +31,12 @@ public class UserController {
 
     @Autowired
     private UserInfoService service;
-
     @Autowired
     private JwtService jwtService;
     @Autowired
     private EmployeeService empService;
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private StorageService azureBlobAdapter;
     @GetMapping("/getAllUsers")
     public List<UserInfoDto> getAllUsersDTO() {
         return service.getAllUsersDTO();
@@ -49,26 +46,19 @@ public class UserController {
         return service.addUser(userInfo);
     }
 
+   @PostMapping("/generateToken")
+   public ResponseEntity<Object> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+       Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
 
-
-    @PostMapping("/generateToken")
-    public ResponseEntity<Object> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-
-            if (authentication.isAuthenticated()) {
-                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-                Employee emp=empService.getEmployeeByUsername(authRequest.getUsername());
-                String token = jwtService.generateToken(userDetails.getUsername(), userDetails.getAuthorities(), emp.getId().toString());
-                return ResponseEntity.ok(token);
-            } else {
-                throw new BadCredentialsException("Invalid credentials");
-            }
-        } catch (BadCredentialsException e) {
-            throw e;
-        }
-    }
-
+       if (authentication.isAuthenticated()) {
+           UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+           Employee emp = empService.getEmployeeByUsername(authRequest.getUsername());
+           String token = jwtService.generateToken(userDetails.getUsername(), userDetails.getAuthorities(), emp.getId().toString());
+           return ResponseEntity.ok(token);
+       } else {
+           throw new BadCredentialsException("Invalid credentials");
+       }
+   }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteUserById(@PathVariable UUID id) {

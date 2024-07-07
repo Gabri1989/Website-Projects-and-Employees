@@ -43,8 +43,6 @@ public class HolidayController {
     public Holiday updateHolidayStatus(@PathVariable UUID id, @RequestParam String status) throws NotFoundEx {
         return holidayService.updateHolidayStatus(id, status);
     }
-
-
     @GetMapping("/holiday-employees")
     public HolidayResponse getHolidayEmployees(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
