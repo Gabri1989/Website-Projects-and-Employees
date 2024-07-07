@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, UUID> {
-    @Query("SELECT h FROM Holiday h WHERE h.status = 'Reject' AND h.startDate >= :startDate AND h.endDate <= :endDate")
+    @Query("SELECT h FROM Holiday h WHERE h.status = 'Rejected' AND h.startDate >= :startDate AND h.endDate <= :endDate")
     List<Holiday> findAvailableEmployees(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 
@@ -21,7 +21,7 @@ public interface HolidayRepository extends JpaRepository<Holiday, UUID> {
 
     @Query("SELECT new com.construct.constructAthens.Employees.Employee_dependencies.HolidayWithEmployeeDetailsDTO(h.holidayID, h.employeeId,h.startDate, h.endDate, e.fullname, e.imageURL) " +
             "FROM Holiday h JOIN Employee e ON h.employeeId = e.id " +
-            "WHERE h.status = 'reject' AND h.startDate >= :startDate AND h.endDate <= :endDate")
+            "WHERE h.status = 'Rejected' AND h.startDate >= :startDate AND h.endDate <= :endDate")
     List<HolidayWithEmployeeDetailsDTO> findAvailableEmployeesWithDetails(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     List<Holiday> findListHolidaysByEmployeeId(UUID employeeId);
